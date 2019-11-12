@@ -1,7 +1,7 @@
 {
     "name": "entitystorage",
     "version": "1.0.0",
-    "main": "mscp.js",
+    "main": "main.js",
     "repository": "palantus/entitystorage",
     "License": "MIT",
     "engineStrict": true,
