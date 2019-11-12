@@ -16,6 +16,7 @@ await Entity.init("./data");
 let e1 = new Entity().tag("test1").tag("test2").prop("type", "T1");
 let e2 = new Entity().tag("test2").rel(e1, "related").prop("type", "T2").rel(e1, "test")
 
+// Looking info up
 console.log(e1.tags)
 console.log(e2.rels)
 console.log(e1.type)
