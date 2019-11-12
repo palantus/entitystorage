@@ -1,0 +1,15 @@
+{
+    "name": "entitystorage",
+    "version": "1.0.0",
+    "main": "mscp.js",
+    "repository": "palantus/entitystorage",
+    "License": "MIT",
+    "engineStrict": true,
+    "engines": {
+        "node": ">=7.0.0"
+    },
+    "dependencies": {
+        "bson": "^4.0.2",
+        "searchqueryparser": "^1.0.10"
+    }
+}
