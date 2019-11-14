@@ -24,6 +24,8 @@ class WriteHandler{
     }
 
     async doWriteQueue(){
+        this.timer = null;
+        
         while(this.locked)
             await this.lockPromise;
             

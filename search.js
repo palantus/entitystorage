@@ -31,15 +31,23 @@ class Search{
             switch(tag?tag.toLowerCase():undefined){
               case "tag":
                 return global.EntityStorage.tags.getByTag(token);
+                
               case "prop":
                 let [p, v] = token.split("=")
                 if(!p) return []
-                return global.EntityStorage.props.getIdsByProp(p, v);
+                
+                if(v.startsWith("~")){
+                  return global.EntityStorage.props.getAllIds().filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").indexOf(v.substr(1))>=0)
+                } else {
+                  return global.EntityStorage.props.getIdsByProp(p, v);
+                }
+
               case "rel":
                 if(token.indexOf("=") >= 0)
                   return global.EntityStorage.rels.getRelatedReverse(...token.split("="))
                 else
                   return global.EntityStorage.rels.getRelatedReverse(parseInt(token))
+
               case "revrel":
               case "relrev":
                 if(token.indexOf("=") >= 0)
