@@ -70,7 +70,14 @@ class Relations{
                         Object.values(this.id2IdsReverseNoRel).reduce((max, e) => Math.max(max, Math.max(...e)), 0));
     }
 
+    getAllIds(){
+        return [...new Set([...Object.values(this.id2IdsNoRel), ...Object.values(this.id2IdsReverseNoRel)])].flat();
+    }
+
     add(id1, id2, rel){
+        id1 = parseInt(id1)
+        id2 = parseInt(id2)
+
         if(!rel)
             rel = "" //No rel
 
@@ -107,6 +114,8 @@ class Relations{
     }
 
     remove(id1, id2, rel){
+        id1 = parseInt(id1)
+        id2 = parseInt(id2)
         if(!rel)
             rel = "" //No rel
 
@@ -127,6 +136,14 @@ class Relations{
             return (this.id2Ids[id]||{})[rel] || [];
         } else {
             return this.id2IdsNoRel[id] || [];
+        }
+    }
+
+    getRelatedReverse(id, rel){
+        if(rel){
+            return (this.id2IdsReverse[id]||{})[rel] || [];
+        } else {
+            return this.id2IdsReverseNoRel[id] || [];
         }
     }
 

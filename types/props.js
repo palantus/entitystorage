@@ -48,7 +48,12 @@ class Props{
         return Object.values(this.prop2Id).reduce((max, e) => Math.max(max, Math.max(...e)), 0);
     }
 
+    getAllIds(){
+        return Object.values(this.prop2Id).flat();
+    }
+
     setProp(id, prop, value){
+        id = parseInt(id)
         let pv = prop + '__' + value;
         if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0)
             return;
@@ -68,6 +73,7 @@ class Props{
     }
 
     removeProp(id, prop, value){
+        id = parseInt(id)
         let pv = prop + '__' + value;
         if(this.prop2Id[pv] === undefined || this.prop2Id[pv].indexOf(id) < 0)
             return;

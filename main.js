@@ -85,6 +85,14 @@ class EntityStorage{
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId()) + 1
         global.EntityStorage = this;
     }
+
+    getAllIds(){
+        return [...new Set([...this.tags.getAllIds(), ...this.rels.getAllIds(), ...this.props.getAllIds()])];
+    }
+}
+
+Entity.prototype.toString = function(){
+    return this._id;
 }
 
 module.exports = Entity

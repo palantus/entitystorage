@@ -30,8 +30,6 @@ class WriteHandler{
         this.lockPromise = new Promise(async (resolve) => {
             this.locked = true;
 
-            console.log("Writing")
-
             let buffers = this.queue.map(o => BSON.serialize(o));
             this.queue = [];
 

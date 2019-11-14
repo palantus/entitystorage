@@ -2,6 +2,14 @@
 
 Very simple and fast database solution as an alternative to SQL or document-based storage.
 
+It is designed to be fast and easy to use, rather than perfect in terms of reliability. That means that it doesn't conform to ACID properties, because writes are batched some milliseconds after reporting them back as written. Any queries or modification to changed data within that window, works on the new data obviously.
+
+All data of type tags, properties and relations are cached in memory. Blobs aren't, but are indexed in memory and a small amount of data is cached.
+
+Data file is handled as one sequential "history" of data operations, meaning that all modifications are written to the end of the file (keeping the old versions). This improves reliability, because any corruption can be solved by rolling back to before it happened. It is planned that restaring the service will result in the datafiles being compressed (duplicated to new files without old data).
+
+Entities only exists by their properties. If you remove the last tag and it doesn't have anything associated with it, it doesn't exist anymore. You can however assign a tag to it again and thus reviving it.
+
 ## Sample usage
 
 Note: Better documentation coming :)
@@ -80,3 +88,26 @@ It will allow you to do things like:
     a.documentation = "My documentation"
     
 ```
+
+## Searching
+
+In search filters it is possible to use AND (space), OR (|) and NOT (!) operators. This can be combined with search tokens, like "tag:mytab" or "prop:mypro=myval". 
+
+Example:
+
+```
+await Entity.init("./data");
+    
+let a = new Entity().prop("id", "A").tag("test1").tag("test2").prop("type", "T1");
+let b = new Entity().prop("id", "B").tag("test2").prop("type", "T2")
+let c = new Entity().prop("id", "C").tag("test2").prop("type", "T2")
+let d = new Entity().prop("id", "D").tag("test1").prop("type", "T3").rel(a)
+
+console.log(Entity.search("tag:test2 (!tag:test1|prop:type=T3)").map(e => e.id))
+//Outputs [ 'B', 'C' ]
+
+console.log(Entity.search(`rel:${d}`).map(e => e.id))
+// Outputs [ 'A' ]
+```
+
+Relations can be searched using "rel:entity=relationname" where "=relationname" is optional. It will find all entities which has a relation to the entity with the given (optional) relation name.  Reverse relations (ie. find entities which the chosen entity has relations to), can be searched for using "relrev:entity=relationname".

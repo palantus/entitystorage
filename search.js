@@ -18,11 +18,11 @@ class Search{
           handleExpression: function(e) {
             switch(e.type){
               case "and":
-                return this.handleExpression(e.e1).filter(value => this.handleExpression(e.e2).includes(value))
+                return this.handleExpression(e.e1).filter(id => this.handleExpression(e.e2).includes(id))
               case "or":
-                return [...new Set([...this.handleExpression(e.e1), ...this.handleExpression(e.e2)])];
+                return [...new Set([...this.handleExpression(e.e1), ...this.handleExpression(e.e2)])]; //union
               case "not":
-                return `(NOT (${this.handleExpression(e.e)}))`
+                return this.getAllIds().filter(id => !this.handleExpression(e.e).includes(id))
               case "token":
                 return this.handleToken(e.tag, e.token)
             }
@@ -31,14 +31,30 @@ class Search{
             switch(tag?tag.toLowerCase():undefined){
               case "tag":
                 return global.EntityStorage.tags.getByTag(token);
-            case "prop":
+              case "prop":
                 let [p, v] = token.split("=")
                 if(!p) return []
                 return global.EntityStorage.props.getIdsByProp(p, v);
-
+              case "rel":
+                if(token.indexOf("=") >= 0)
+                  return global.EntityStorage.rels.getRelatedReverse(...token.split("="))
+                else
+                  return global.EntityStorage.rels.getRelatedReverse(parseInt(token))
+              case "revrel":
+              case "relrev":
+                if(token.indexOf("=") >= 0)
+                  return global.EntityStorage.rels.getRelated(...token.split("="))
+                else
+                  return global.EntityStorage.rels.getRelated(parseInt(token))
+        
               default:
                 return []
             }
+          },
+          getAllIds(){
+            if(!this.allIds)
+              this.allIds = global.EntityStorage.getAllIds();
+            return this.allIds;
           }
         }
         return doSearch.handleExpression(ast);

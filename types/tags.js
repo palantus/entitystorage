@@ -50,7 +50,13 @@ class Tags{
         return Object.values(this.tag2ids).reduce((max, e) => Math.max(max, Math.max(...e)), 0);
     }
 
+    getAllIds(){
+        return Object.values(this.tag2ids).flat();
+    }
+
     addTag(id, tag){
+        id = parseInt(id)
+
         if(this.tag2ids[tag] !== undefined && this.tag2ids[tag].indexOf(tag) >= 0)
             return;
         
@@ -69,6 +75,8 @@ class Tags{
     }
 
     removeTag(id, tag){
+        id = parseInt(id)
+        
         if(this.tag2ids[tag] === undefined || this.tag2ids[tag].indexOf(id) < 0)
             return;
 
