@@ -113,3 +113,32 @@ console.log(Entity.search(`rel:${d}`).map(e => e.id))
 Relations can be searched using "rel:entity=relationname" where "=relationname" is optional. It will find all entities which has a relation to the entity with the given (optional) relation name.  Reverse relations (ie. find entities which the chosen entity has relations to), can be searched for using "relrev:entity=relationname".
 
 If you want to search for a word in a property, you can use "prop:myprop=~app".
+
+## Stepping through relations
+
+Relations can be steeped through using .related:
+
+```
+    let a = new Assignment("01234", "New assignment", "R55");
+    new Assignment("01111", "Test relation", "R12").rel(a, "solvedin")
+
+    console.log(Assignment.find("prop:num=01111").related.solvedin.title);
+    // Outputs "New assignment"
+
+    // Can also be used to filter further:
+    Assignment.search("tag:assignment").filter(a => a.related.solvedin.release == 'R12')
+```
+
+Using .relations (or .rels), you get an object with relations in arrays (doesn't assume only one).
+
+## Indices
+
+There are available indices for faster searching.
+
+Currently they are filled on app startup and doesn't stay synchronized, so they are disabled by default. That will change once they are fully synchronized. They can be enabled by calling:
+
+```
+await global.EntityStorage.addIndex("propcontains");
+```
+
+This will allow searching eg. 60000 forum posts for words (like "tag:post prop:body=~law") to be completed in 0.25ms, as opposed to about 350ms without index. 

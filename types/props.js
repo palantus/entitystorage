@@ -24,7 +24,7 @@ class Props{
     async readDB(){
         let rd = new ReadHandler();
         await rd.read(this.dbPath, (data) => {
-            let pv = data.prop + '__' + data.value;
+            let pv = (data.prop + '__' + data.value).toLowerCase();
             if(data.o == 1){
                 if(this.prop2Id[pv] === undefined)
                     this.prop2Id[pv] = [data.id]
@@ -54,7 +54,7 @@ class Props{
 
     setProp(id, prop, value){
         id = parseInt(id)
-        let pv = prop + '__' + value;
+        let pv = (prop + '__' + value).toLowerCase();
         if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0)
             return;
         
@@ -74,7 +74,7 @@ class Props{
 
     removeProp(id, prop, value){
         id = parseInt(id)
-        let pv = prop + '__' + value;
+        let pv = (prop + '__' + value).toLowerCase()
         if(this.prop2Id[pv] === undefined || this.prop2Id[pv].indexOf(id) < 0)
             return;
 
@@ -85,7 +85,7 @@ class Props{
     }
 
     getIdsByProp(prop, value){
-        let pv = prop + '__' + value;
+        let pv = (prop + '__' + value).toLowerCase();
         return this.prop2Id[pv] || [];
     }
 

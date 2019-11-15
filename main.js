@@ -1,6 +1,7 @@
 "use strict"
 
 let path = require("path")
+let fs = require("fs")
 let Props = require("./types/props")
 let Rels = require("./types/rels")
 let Tags = require("./types/tags")
@@ -17,7 +18,27 @@ class Entity{
                 } else if(name == "tags") {
                     return global.EntityStorage.tags.getTagsById(target._id);
                 } else if(name == "relations" || name == "rels") {
-                    return global.EntityStorage.rels.getRelations(target._id)
+                    let rels = {...global.EntityStorage.rels.getRelations(target._id)}
+                    Object.keys(rels).map((key, index) => {
+                        rels[key] = rels[key].map(id => {
+                            let e = new target.constructor(); 
+                            e._id = id;
+                            return e
+                        })
+                      });
+                    return rels;
+                } else if(name == "related") {
+                    let rels = {...global.EntityStorage.rels.getRelations(target._id)}
+                    Object.keys(rels).map((key, index) => {
+                        if(rels[key][0]){
+                            let e = new target.constructor(); 
+                            e._id = rels[key][0];
+                            rels[key] = e
+                        } else {
+                            rels[key] = null;
+                        }
+                      });
+                    return rels;
                 } else {
                     return global.EntityStorage.props.getProps(target._id)[name]
                 }
@@ -81,9 +102,22 @@ class EntityStorage{
         this.rels = await new Rels(path.resolve(dataPath, "rels.data")).init();
         this.props = await new Props(path.resolve(dataPath, "props.data")).init();
         this.search = await new Search().init();
-
+        
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId()) + 1
         global.EntityStorage = this;
+
+        this.indices = {}
+    }
+
+    async addIndex(name){
+        let filename = `./indices/${name}.js`;
+
+        try{
+            this.indices[name] = new (require(filename))()
+            this.indices[name].fill()
+        } catch(err){
+            throw "Unknown index: " + name;
+        }
     }
 
     getAllIds(){
