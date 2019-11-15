@@ -91,7 +91,7 @@ a.documentation = "My documentation"
 
 ## Searching
 
-In search filters it is possible to use AND (space), OR (|) and NOT (!) operators. This can be combined with search tokens, like "tag:mytab" or "prop:mypro=myval". 
+In search filters it is possible to use AND (space), OR (|) NOT (!) and parentheses operators. This can be combined with search tokens, like "tag:mytab" or "prop:mypro=myval". 
 
 Example:
 
