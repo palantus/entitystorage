@@ -21,13 +21,15 @@ class Search{
 
             switch(e.type){
               case "and":
-                res1 = this.handleExpression(e.e1)
+                res1 = this.handleExpression(e.e1, fixedStartSet)
                 res2 = this.handleExpression(e.e2, res1)
                 return [...new Set(res2)];
               case "or":
-                return [...new Set([...this.handleExpression(e.e1), ...this.handleExpression(e.e2)])]; //union
+                return [...new Set([...this.handleExpression(e.e1, fixedStartSet), ...this.handleExpression(e.e2, fixedStartSet)])]; //union
               case "not":
-                return this.getAllIds().filter(id => !this.handleExpression(e.e).includes(id))
+                let notStartSet = fixedStartSet ? fixedStartSet : this.getAllIds()
+                let exceptSet = this.handleExpression(e.e);
+                return notStartSet.filter(id => !exceptSet.includes(id))
               case "token":
                 if(e.tag && e.tag.indexOf(".") >= 0){
                   let s = e.tag.split(".")
