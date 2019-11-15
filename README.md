@@ -158,3 +158,20 @@ If you are using subtypes, you can even call subtype methods on them (using exam
 // This will call Assignment instance method "moveToNextRelease" on all results:
 Assignment.search("prop:release=R55").moveToNextRelease()
 ```
+
+## Using relations in search
+
+Relations can also be stepped through in search. By using dot-notation, you can use filters on related entities:
+
+```
+let r54 = new Entity().prop("id", "A").tag("release").prop("name", "R54");
+let r55 = new Entity().prop("id", "B").tag("release").prop("name", "R55");
+let a1  = new Entity().prop("id", "C").tag("assignment").rel(r54, "release")
+let a2  = new Entity().prop("id", "D").tag("assignment").rel(r55, "release")
+let t1  = new Entity().prop("id", "E").tag("task").rel(a2, "assignment")
+let t2  = new Entity().prop("id", "F").tag("task").rel(a1, "assignment")
+let t3  = new Entity().prop("id", "G").tag("task").rel(a2, "assignment")
+
+let r = Entity.search("tag:task assignment.release.prop:name=R55").map(e => e.id)
+console.log(r) // [ 'E', 'G' ]
+```

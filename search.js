@@ -29,6 +29,14 @@ class Search{
               case "not":
                 return this.getAllIds().filter(id => !this.handleExpression(e.e).includes(id))
               case "token":
+                if(e.tag && e.tag.indexOf(".")){
+                  let s = e.tag.split(".")
+                  let curSet = this.handleToken(s.pop(), e.token, fixedStartSet)
+                  s.reverse().forEach(rel => {
+                    curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
+                  })
+                  return curSet;
+                }
                 return this.handleToken(e.tag, e.token, fixedStartSet)
             }
           },
