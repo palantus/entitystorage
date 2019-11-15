@@ -29,51 +29,63 @@ class Search{
               case "not":
                 return this.getAllIds().filter(id => !this.handleExpression(e.e).includes(id))
               case "token":
-                if(e.tag && e.tag.indexOf(".")){
+                if(e.tag && e.tag.indexOf(".") >= 0){
                   let s = e.tag.split(".")
-                  let curSet = this.handleToken(s.pop(), e.token, fixedStartSet)
+                  let curSet = this.handleToken(s.pop(), e.token)
                   s.reverse().forEach(rel => {
                     curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
                   })
-                  return curSet;
+                  
+                  return fixedStartSet ? curSet.filter(id => fixedStartSet.includes(id)) : curSet;
                 }
                 return this.handleToken(e.tag, e.token, fixedStartSet)
             }
           },
           handleToken: function(tag, token, fixedStartSet){
+            let res;
+
             switch(tag?tag.toLowerCase():undefined){
               case "id":
-                return [parseInt(token)]
+                let id = parseInt(token);
+                if(fixedStartSet)
+                  return fixedStartSet.indexOf(id) >= 0 ? [id] : []
+                return [id]
 
               case "tag":
+                if(fixedStartSet)
+                  return global.EntityStorage.tags.getByTag(token).filter(id => fixedStartSet.includes(id))
                 return global.EntityStorage.tags.getByTag(token);
                 
               case "prop":
                 let [p, v] = token.split("=")
                 if(!p) return []
                 
+                res = null;
                 if(v.startsWith("~")){
                   v = v.substr(1).toLowerCase()
                   if(global.EntityStorage.indices.propcontains)
-                    return global.EntityStorage.indices.propcontains.word2Ids[v]
+                    res = global.EntityStorage.indices.propcontains.word2Ids[v]
                   else
                     return (fixedStartSet?fixedStartSet:global.EntityStorage.props.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().indexOf(v)>=0)
                 } else {
-                  return global.EntityStorage.props.getIdsByProp(p, v);
+                  res = global.EntityStorage.props.getIdsByProp(p, v);
                 }
+                return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
 
               case "rel":
                 if(token.indexOf("=") >= 0)
-                  return global.EntityStorage.rels.getRelatedReverse(...token.split("="))
+                  res = global.EntityStorage.rels.getRelatedReverse(...token.split("="))
                 else
-                  return global.EntityStorage.rels.getRelatedReverse(parseInt(token))
+                  res = global.EntityStorage.rels.getRelatedReverse(parseInt(token))
+                return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
 
               case "revrel":
               case "relrev":
                 if(token.indexOf("=") >= 0)
-                  return global.EntityStorage.rels.getRelated(...token.split("="))
+                  res = global.EntityStorage.rels.getRelated(...token.split("="))
                 else
-                  return global.EntityStorage.rels.getRelated(parseInt(token))
+                  res = global.EntityStorage.rels.getRelated(parseInt(token))
+                return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
         
               default:
                 return []
@@ -84,6 +96,15 @@ class Search{
               this.allIds = global.EntityStorage.getAllIds();
             return this.allIds;
           }
+        }
+        
+        if(global.benchmarkSearch === true){
+          let hrstart = process.hrtime()
+          let res = doSearch.handleExpression(ast);
+          let hrend = process.hrtime(hrstart)
+          console.info('Searched %d entities in %ds %dms. Found %d results.', global.EntityStorage.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
+          return res;
+
         }
         return doSearch.handleExpression(ast);
       }
