@@ -75,17 +75,17 @@ class Assignment extends Entity{
 It will allow you to do things like:
 
 ```
-    // Create and store a new assignment
-    let a = new Assignment("01234", "Aew assignment", "R55");
+// Create and store a new assignment
+let a = new Assignment("01234", "Aew assignment", "R55");
 
-    //Look it up again later on:
-    a = Assignment.lookup("01234")
+//Look it up again later on:
+a = Assignment.lookup("01234")
 
-    // Call methods on it:
-    a.moveToNextRelease();
+// Call methods on it:
+a.moveToNextRelease();
 
-    // Do any default Entity methods, like setting properties directly (will be stored in database):
-    a.documentation = "My documentation"
+// Do any default Entity methods, like setting properties directly (will be stored in database):
+a.documentation = "My documentation"
     
 ```
 
@@ -119,14 +119,14 @@ If you want to search for a word in a property, you can use "prop:myprop=~app".
 Relations can be steeped through using .related:
 
 ```
-    let a = new Assignment("01234", "New assignment", "R55");
-    new Assignment("01111", "Test relation", "R12").rel(a, "solvedin")
+let a = new Assignment("01234", "New assignment", "R55");
+new Assignment("01111", "Test relation", "R12").rel(a, "solvedin")
 
-    console.log(Assignment.find("prop:num=01111").related.solvedin.title);
-    // Outputs "New assignment"
+console.log(Assignment.find("prop:num=01111").related.solvedin.title);
+// Outputs "New assignment"
 
-    // Can also be used to filter further:
-    Assignment.search("tag:assignment").filter(a => a.related.solvedin.release == 'R12')
+// Can also be used to filter further:
+Assignment.search("tag:assignment").filter(a => a.related.solvedin.release == 'R12')
 ```
 
 Using .relations (or .rels), you get an object with relations in arrays (doesn't assume only one).
@@ -142,3 +142,19 @@ await global.EntityStorage.addIndex("propcontains");
 ```
 
 This will allow searching eg. 60000 forum posts for words (like "tag:post prop:body=~law") to be completed in 0.25ms, as opposed to about 350ms without index. 
+
+## Search result operations
+
+Search results are arrays of entities, but it is actually possible to call Entity methods om them, wich will call them on all entities:
+
+```
+// This will tag all results of the search with "greeting" and set property "message" to "Hello world!":
+Entity.search("tag:test1").tag("greeting").prop("message", "Hello world!")
+```
+
+If you are using subtypes, you can even call subtype methods on them (using example type Assignment from previously):
+
+```
+// This will call Assignment instance method "moveToNextRelease" on all results:
+Assignment.search("prop:release=R55").moveToNextRelease()
+```

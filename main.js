@@ -76,7 +76,20 @@ class Entity{
 
     static search(filter){
         let t = this;
-        return global.EntityStorage.search.search(filter).map(id => {let e = new this(); e._id = id; return e;})
+        let entities = global.EntityStorage.search.search(filter).map(id => {let e = new this(); e._id = id; return e;})
+
+        return new Proxy(entities, {
+            get(target, name, receiver) {
+                if(name in target) {
+                    return target[name]
+                } else if(target.length > 0 && typeof target[0][name] === "function"){
+                    return function(...args) {
+                        target.forEach(e => e[name](...args));
+                        return this;
+                    }
+                }
+            }
+        })
     }
 
     static async init(dataPath){
