@@ -28,7 +28,7 @@ class Search{
                 return [...new Set([...this.handleExpression(e.e1, fixedStartSet), ...this.handleExpression(e.e2, fixedStartSet)])]; //union
               case "not":
                 let notStartSet = fixedStartSet ? fixedStartSet : this.getAllIds()
-                let exceptSet = this.handleExpression(e.e);
+                let exceptSet = this.handleExpression(e.e, notStartSet);
                 return notStartSet.filter(id => !exceptSet.includes(id))
               case "token":
                 if(e.tag && e.tag.indexOf(".") >= 0){
@@ -68,7 +68,7 @@ class Search{
                   if(global.EntityStorage.indices.propcontains)
                     res = global.EntityStorage.indices.propcontains.word2Ids[v]
                   else
-                    return (fixedStartSet?fixedStartSet:global.EntityStorage.props.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().indexOf(v)>=0)
+                    return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().indexOf(v)>=0)
                 } else {
                   res = global.EntityStorage.props.getIdsByProp(p, v);
                 }
