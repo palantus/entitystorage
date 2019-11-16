@@ -8,6 +8,7 @@ class Relations{
         this.id2IdsNoRel = {}
         this.id2IdsReverse = {}
         this.id2IdsReverseNoRel = {}
+        this.idSet = new Set();
         this.dbPath = dbPath || "rels.data"
     }
 
@@ -53,6 +54,9 @@ class Relations{
                 }
                 this.id2IdsReverse[id2][rel].push(id1)
                 this.id2IdsReverseNoRel[id2].push(id1)
+
+                this.idSet.add(id1)
+                this.idSet.add(id2)
                 
             } else if(this.prop2Id[pv] !== undefined) {
                 this.id2Ids[id1][rel].splice(this.id2Ids[id1][rel].indexOf(id2), 1);
@@ -60,6 +64,12 @@ class Relations{
                 
                 this.id2IdsReverse[id2][rel].splice(this.id2IdsReverse[id2][rel].indexOf(id1), 1);
                 this.id2IdsReverseNoRel[id2].splice(this.id2IdsReverseNoRel[id2].indexOf(id1), 1);
+
+                if(this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1)
+                    this.idSet.delete(id1)
+                
+                if(this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1)
+                    this.idSet.delete(id2)
             }
         })
         
@@ -71,7 +81,7 @@ class Relations{
     }
 
     getAllIds(){
-        return [...new Set([...Object.values(this.id2IdsNoRel), ...Object.values(this.id2IdsReverseNoRel)])].flat();
+        return this.idSet.values()
     }
 
     add(id1, id2, rel){
@@ -110,6 +120,9 @@ class Relations{
             this.id2IdsReverseNoRel[id2].push(id1)
         }
 
+        this.idSet.add(id1)
+        this.idSet.add(id2)
+
         this.write({o: 1, id1, id2, rel})
     }
 
@@ -128,6 +141,13 @@ class Relations{
         this.id2IdsReverse[id2][rel].splice(this.id2IdsReverse[id2][rel].indexOf(id1), 1);
         this.id2IdsReverseNoRel[id2].splice(this.id2IdsReverseNoRel[id2].indexOf(id1), 1);
         
+
+        if(this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1)
+            this.idSet.delete(id1)
+        
+        if(this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1)
+            this.idSet.delete(id2)
+
         this.write({o: 0, id1, id2, rel})
     }
 

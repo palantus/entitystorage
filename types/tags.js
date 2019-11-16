@@ -6,6 +6,7 @@ class Tags{
     constructor(dbPath){
         this.tag2ids = {}
         this.id2tags = {}
+        this.idSet = new Set();
         this.dbPath = dbPath || "tags.data"
     }
 
@@ -38,9 +39,14 @@ class Tags{
                     this.id2tags[id] = [tag]
                 else
                     this.id2tags[id].push(tag)
+
+                this.idSet.add(id)
+
             } else if(this.tag2ids[data.tag] !== undefined) {
                 this.tag2ids[tag].splice(this.tag2ids[tag].indexOf(id), 1)
                 this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
+                if(this.id2tags[id].length < 1)
+                    this.idSet.delete(id)
             }
         })
         
@@ -51,7 +57,7 @@ class Tags{
     }
 
     getAllIds(){
-        return Object.values(this.tag2ids).flat();
+        return this.idSet.values()
     }
 
     addTag(id, tag){
@@ -71,6 +77,8 @@ class Tags{
         else
             this.id2tags[id].push(tag)
 
+        this.idSet.add(id)
+
         this.write({o: 1, id, tag})
     }
 
@@ -82,6 +90,9 @@ class Tags{
 
         this.tag2ids[tag].splice(this.tag2ids[tag].indexOf(id), 1)
         this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
+
+        if(this.id2tags[id].length < 1)
+            this.idSet.delete(id)
 
         this.write({o: 0, id, tag})
     }

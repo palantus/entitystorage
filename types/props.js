@@ -6,6 +6,7 @@ class Props{
     constructor(dbPath){
         this.prop2Id = {}
         this.id2Props = {}
+        this.idSet = new Set();
         this.dbPath = dbPath || "props.data"
     }
 
@@ -35,10 +36,14 @@ class Props{
                     this.id2Props[data.id] = {}
                 }
                 this.id2Props[data.id][data.prop] = data.value;
+                this.idSet.add(data.id)
                 
             } else if(this.prop2Id[pv] !== undefined) {
                 this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(data.id), 1);
                 delete this.id2Props[data.id][data.prop];
+
+                if(Object.entries(this.id2Props[data.id]).length === 0)
+                    this.idSet.delete(data.id)
             }
         })
         
@@ -49,7 +54,7 @@ class Props{
     }
 
     getAllIds(){
-        return Object.values(this.prop2Id).flat();
+        return this.idSet.values()
     }
 
     setProp(id, prop, value){
@@ -68,6 +73,7 @@ class Props{
             this.id2Props[id] = {}
         }
         this.id2Props[id][prop] = value;
+        this.idSet.add(id)
 
         this.write({o: 1, id, prop, value})
     }
@@ -80,6 +86,9 @@ class Props{
 
         this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(id), 1);
         delete this.id2Props[id][prop];
+
+        if(Object.entries(this.id2Props[id]).length === 0)
+            this.idSet.delete(id)
 
         this.write({o: 0, id, prop, value})
     }

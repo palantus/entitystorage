@@ -134,7 +134,17 @@ class EntityStorage{
     }
 
     getAllIds(){
-        return [...new Set([...this.tags.getAllIds(), ...this.rels.getAllIds(), ...this.props.getAllIds()])];
+        let hrstart;
+        if(global.benchmarkSearch === true){
+            hrstart = process.hrtime()
+        }
+        let res = [...new Set([...this.tags.getAllIds(), ...this.rels.getAllIds(), ...this.props.getAllIds()])];
+        
+        if(global.benchmarkSearch === true){
+            let hrend = process.hrtime(hrstart)
+            console.info('Returned all ids in %ds %dms', hrend[0], hrend[1] / 1000000)
+        }
+        return res;
     }
 }
 

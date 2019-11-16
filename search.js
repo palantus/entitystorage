@@ -32,13 +32,44 @@ class Search{
                 return notStartSet.filter(id => !exceptSet.includes(id))
               case "token":
                 if(e.tag && e.tag.indexOf(".") >= 0){
-                  let s = e.tag.split(".")
-                  let curSet = this.handleToken(s.pop(), e.token)
-                  s.reverse().forEach(rel => {
-                    curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
-                  })
-                  
-                  return fixedStartSet ? curSet.filter(id => fixedStartSet.includes(id)) : curSet;
+
+                  if(!fixedStartSet){
+                    let s = e.tag.split(".")
+                    let curSet = this.handleToken(s.pop(), e.token)
+                    s.reverse().forEach(rel => {
+                      curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
+                    })
+                    
+                    return curSet;
+                  } else {
+                    let s = e.tag.split(".")
+                    let tag = s.pop()
+                    let curId;
+                    let newSet = []
+                    let validatedOkIds = new Set();
+                    let validatedNoIds = new Set();
+
+                    for(let outerId of fixedStartSet){
+                      curId = outerId
+                      for(let rel of s){
+                        if(curId){
+                          curId = global.EntityStorage.rels.getRelated(curId, rel)[0]
+                        } else {
+                          break;
+                        }
+                      }
+                      if(curId && !validatedNoIds.has(curId)){
+                        if(validatedOkIds.has(curId) || this.handleToken(tag, e.token, [curId]).length > 0){
+                          newSet.push(outerId)
+                          validatedOkIds.add(curId)
+                        } else {
+                          validatedNoIds.add(curId)
+                        }
+                      }
+                    }
+                    
+                    return newSet
+                  }
                 }
                 return this.handleToken(e.tag, e.token, fixedStartSet)
             }
@@ -104,7 +135,7 @@ class Search{
           let hrstart = process.hrtime()
           let res = doSearch.handleExpression(ast);
           let hrend = process.hrtime(hrstart)
-          console.info('Searched %d entities in %ds %dms. Found %d results.', global.EntityStorage.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
+          console.info('Searched %d entities in %ds %dms. Found %d results.', doSearch.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
           return res;
 
         }
