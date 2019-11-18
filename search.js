@@ -33,9 +33,8 @@ class Search{
               case "token":
                 if(e.tag && e.tag.indexOf(".") >= 0){
                   let isNotReverse = e.tag.indexOf("..") >= 0 ? true : false;
-                  let s = e.tag.split(".");
+                  let s = e.tag.split(isNotReverse ? ".." : ".");
                   let tag = s.pop();
-                  s = isNotReverse ? s.join(".").split("..") : s
 
                   if(!fixedStartSet){
                     let curSet = this.handleToken(tag, e.token)

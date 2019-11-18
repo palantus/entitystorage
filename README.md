@@ -176,7 +176,7 @@ let r = Entity.search("tag:task assignment.release.prop:name=R55")
 console.log(r.map(e => e.id)) // Outputs [ 'E', 'G' ]
 
 // Searching reverse relations
-r = Entity.search("tag:release release..assignment.prop:priority=2")
+r = Entity.search("tag:release release..assignment..prop:priority=2")
 console.log(r.map(e => e.id)) // Outputs [ 'B']
 ```
 
