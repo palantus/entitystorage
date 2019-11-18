@@ -14,8 +14,7 @@ Entities only exists by their properties. If you remove the last tag and it does
 
 Note: Better documentation coming :)
 
-```
-
+```javascript
 let Entity = require("../main.js")
 
 await Entity.init("./data");
@@ -51,7 +50,7 @@ console.log(e1.type) //shows 2
 
 Create a typed entity like this:
 
-```
+```javascript
 class Assignment extends Entity{
     
     constructor(num, title, release){
@@ -74,7 +73,7 @@ class Assignment extends Entity{
 
 It will allow you to do things like:
 
-```
+```javascript
 // Create and store a new assignment
 let a = new Assignment("01234", "Aew assignment", "R55");
 
@@ -95,7 +94,7 @@ In search filters it is possible to use AND (space), OR (|) NOT (!) and parenthe
 
 Example:
 
-```
+```javascript
 await Entity.init("./data");
     
 let a = new Entity().prop("id", "A").tag("test1").tag("test2").prop("type", "T1");
@@ -118,7 +117,7 @@ If you want to search for a word in a property, you can use "prop:myprop=~app".
 
 Relations can be steeped through using .related:
 
-```
+```javascript
 let a = new Assignment("01234", "New assignment", "R55");
 new Assignment("01111", "Test relation", "R12").rel(a, "solvedin")
 
@@ -137,7 +136,7 @@ There are available indices for faster searching.
 
 Currently they are filled on app startup and doesn't stay synchronized, so they are disabled by default. That will change once they are fully synchronized. They can be enabled by calling:
 
-```
+```javascript
 await global.EntityStorage.addIndex("propcontains");
 ```
 
@@ -147,14 +146,14 @@ This will allow searching eg. 60000 forum posts for words (like "tag:post prop:b
 
 Search results are arrays of entities, but it is actually possible to call Entity methods om them, wich will call them on all entities:
 
-```
+```javascript
 // This will tag all results of the search with "greeting" and set property "message" to "Hello world!":
 Entity.search("tag:test1").tag("greeting").prop("message", "Hello world!")
 ```
 
 If you are using subtypes, you can even call subtype methods on them (using example type Assignment from previously):
 
-```
+```javascript
 // This will call Assignment instance method "moveToNextRelease" on all results:
 Assignment.search("prop:release=R55").moveToNextRelease()
 ```
@@ -163,7 +162,7 @@ Assignment.search("prop:release=R55").moveToNextRelease()
 
 Relations can also be stepped through in search. By using dot-notation, you can use filters on related entities:
 
-```
+```javascript
 let r54 = new Entity().prop("id", "A").tag("release").prop("name", "R54");
 let r55 = new Entity().prop("id", "B").tag("release").prop("name", "R55");
 let a1  = new Entity().prop("id", "C").tag("assignment").rel(r54, "release")
@@ -172,14 +171,18 @@ let t1  = new Entity().prop("id", "E").tag("task").rel(a2, "assignment")
 let t2  = new Entity().prop("id", "F").tag("task").rel(a1, "assignment")
 let t3  = new Entity().prop("id", "G").tag("task").rel(a2, "assignment")
 
-let r = Entity.search("tag:task assignment.release.prop:name=R55").map(e => e.id)
-console.log(r) // [ 'E', 'G' ]
+// Searching relations (most used scenario)
+let r = Entity.search("tag:task assignment.release.prop:name=R55")
+console.log(r.map(e => e.id)) // Outputs [ 'E', 'G' ]
+
+// Searching reverse relations
+r = Entity.search("tag:release release..assignment.prop:priority=2")
+console.log(r.map(e => e.id)) // Outputs [ 'B']
 ```
 
 ## Removing tags, relations and properties
 
-
-```
+```javascript
 Entity.search("tag:post").removeTag("migrated").removeRel(entityOld, "migrated").removeProp("legacyid")
 ```
 

@@ -32,38 +32,53 @@ class Search{
                 return notStartSet.filter(id => !exceptSet.includes(id))
               case "token":
                 if(e.tag && e.tag.indexOf(".") >= 0){
+                  let isNotReverse = e.tag.indexOf("..") >= 0 ? true : false;
+                  let s = e.tag.split(".");
+                  let tag = s.pop();
+                  s = isNotReverse ? s.join(".").split("..") : s
 
                   if(!fixedStartSet){
-                    let s = e.tag.split(".")
-                    let curSet = this.handleToken(s.pop(), e.token)
+                    let curSet = this.handleToken(tag, e.token)
+                    
                     s.reverse().forEach(rel => {
-                      curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
+                      if(isNotReverse)
+                        curSet = curSet.map(id => global.EntityStorage.rels.getRelated(id, rel) || null).filter(id => id !== null).flat()
+                      else
+                        curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
                     })
                     
                     return curSet;
                   } else {
-                    let s = e.tag.split(".")
-                    let tag = s.pop()
-                    let curId;
+                    let curIds;
                     let newSet = []
                     let validatedOkIds = new Set();
                     let validatedNoIds = new Set();
 
                     for(let outerId of fixedStartSet){
-                      curId = outerId
+                      curIds = [outerId]
                       for(let rel of s){
-                        if(curId){
-                          curId = global.EntityStorage.rels.getRelated(curId, rel)[0]
+                        if(curIds.length > 0){
+                          let newIds = []
+                          for(let id of curIds){
+                            if(isNotReverse)
+                              newIds.push(global.EntityStorage.rels.getRelatedReverse(id, rel))
+                            else
+                              newIds.push(global.EntityStorage.rels.getRelated(id, rel))
+                          }
+                          curIds = newIds.flat();
                         } else {
                           break;
                         }
                       }
-                      if(curId && !validatedNoIds.has(curId)){
-                        if(validatedOkIds.has(curId) || this.handleToken(tag, e.token, [curId]).length > 0){
-                          newSet.push(outerId)
-                          validatedOkIds.add(curId)
-                        } else {
-                          validatedNoIds.add(curId)
+                      for(let curId of curIds){
+                        if(curId && !validatedNoIds.has(curId)){
+                          if(validatedOkIds.has(curId) || this.handleToken(tag, e.token, [curId]).length > 0){
+                            newSet.push(outerId)
+                            validatedOkIds.add(curId)
+                            break;
+                          } else {
+                            validatedNoIds.add(curId)
+                          }
                         }
                       }
                     }
