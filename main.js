@@ -150,6 +150,9 @@ class EntityStorage{
 
     async init(dataPath){
         dataPath = dataPath ? dataPath : "./";
+
+        await fs.promises.mkdir(dataPath, { recursive: true });
+
         this.tags = await new Tags(path.resolve(dataPath, "tags.data")).init();
         this.rels = await new Rels(path.resolve(dataPath, "rels.data")).init();
         this.props = await new Props(path.resolve(dataPath, "props.data")).init();
