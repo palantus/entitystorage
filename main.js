@@ -73,6 +73,10 @@ class Entity{
     static find(filter){
         return this.search(filter)[0] || null
     }
+    
+    static findOrCreate(filter){
+        return this.find(filter) || new this();
+    }
 
     static search(filter){
         let t = this;
