@@ -182,3 +182,23 @@ console.log(r) // [ 'E', 'G' ]
 ```
 Entity.search("tag:post").removeTag("migrated").removeRel(entityOld, "migrated").removeProp("legacyid")
 ```
+
+## API
+
+Entity instance methods:
+ - `rel(e2, rel)`: Create a relation to e2 (Entity) with type rel (string)
+ - `tag(tag)`: Add tag "tag" to entity.
+ - `prop(name, value)`: Set property "name" to "value".
+ - `removeRel(e2, rel)`: Remove relation to e2 (Entity) of type rel (string)
+ - `removeTag(tag)`: Remove tag "tag".
+ - `removeProp(name)`: Remove property "name".
+ - `delete()`: delete all information about the entity
+ - `rels`: get all relations (object like `{"rel1": [e1, e2], "rel2": [e1]}`)
+ - `props`: get all properties as an object (also accessible using .propertyname directly on entity)
+ - `tags`: get all tags (array)
+
+Entity static methods:
+ - `(filter)`: Search for filter "filter" and return first result
+ - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
+ - `search(filter)`: Search for filter
+ - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
