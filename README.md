@@ -200,5 +200,5 @@ Entity instance methods:
 Entity static methods:
  - `find(filter)`: Search for filter "filter" and return first result
  - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
- - `search(filter)`: Search for filter
+ - `search(filter)`: Search for filter and return all results as an array
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
