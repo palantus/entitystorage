@@ -198,7 +198,7 @@ Entity instance methods:
  - `tags`: get all tags (array)
 
 Entity static methods:
- - `(filter)`: Search for filter "filter" and return first result
+ - `find(filter)`: Search for filter "filter" and return first result
  - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
  - `search(filter)`: Search for filter
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
