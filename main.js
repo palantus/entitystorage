@@ -17,6 +17,8 @@ class Entity{
                     return target[name]
                 } else if(name == "tags") {
                     return global.EntityStorage.tags.getTagsById(target._id);
+                } else if(name == "props") {
+                    return global.EntityStorage.props.getProps(target._id);
                 } else if(name == "relations" || name == "rels") {
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
@@ -85,6 +87,22 @@ class Entity{
             throw "You can only relate entities to other instances of the Entity class"
         global.EntityStorage.rels.remove(this._id, related._id, rel)
         return this;
+    }
+
+    delete(){
+        let rels = this.rels;
+        Object.keys(rels).forEach(rel => {
+            rels[rel].forEach(e => {
+                this.removeRel(e, rel)
+            });
+        })
+
+        this.tags.forEach(t => this.removeTag(t))
+        
+        let props = this.props;
+        Object.keys(props).forEach(key => {
+            this.removeProp(key)
+        })
     }
     
     static find(filter){

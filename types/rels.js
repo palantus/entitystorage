@@ -141,11 +141,15 @@ class Relations{
         this.id2IdsReverse[id2][rel].splice(this.id2IdsReverse[id2][rel].indexOf(id1), 1);
         this.id2IdsReverseNoRel[id2].splice(this.id2IdsReverseNoRel[id2].indexOf(id1), 1);
         
+        if(this.id2Ids[id1][rel].length == 0) delete this.id2Ids[id1][rel];
+        if(this.id2IdsNoRel[id1].length == 0) delete this.id2Ids[id1][rel];
+        if(this.id2IdsReverse[id2][rel].length == 0) delete this.id2Ids[id1][rel];
+        if(this.id2IdsReverseNoRel[id2].length == 0) delete this.id2Ids[id1][rel];
 
-        if(this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1)
+        if(this.id2Ids[id1] === undefined || (this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1))
             this.idSet.delete(id1)
         
-        if(this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1)
+        if(this.id2Ids[id2] === undefined || (this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1))
             this.idSet.delete(id2)
 
         this.write({o: 0, id1, id2, rel})
