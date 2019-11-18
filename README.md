@@ -175,3 +175,10 @@ let t3  = new Entity().prop("id", "G").tag("task").rel(a2, "assignment")
 let r = Entity.search("tag:task assignment.release.prop:name=R55").map(e => e.id)
 console.log(r) // [ 'E', 'G' ]
 ```
+
+## Removing tags, relations and properties
+
+
+```
+Entity.search("tag:post").removeTag("migrated").removeRel(entityOld, "migrated").removeProp("legacyid")
+```

@@ -69,6 +69,23 @@ class Entity{
         global.EntityStorage.props.setProp(this._id, prop, value)
         return this;
     }
+
+    removeTag(tag){
+        global.EntityStorage.tags.removeTag(this._id, tag)
+        return this;
+    }
+
+    removeProp(prop){
+        global.EntityStorage.props.removeProp(this._id, prop)
+        return this;
+    }
+
+    removeRel(related, rel){
+        if(typeof related !== "object" || !(related instanceof Entity))
+            throw "You can only relate entities to other instances of the Entity class"
+        global.EntityStorage.rels.remove(this._id, related._id, rel)
+        return this;
+    }
     
     static find(filter){
         return this.search(filter)[0] || null

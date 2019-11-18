@@ -78,8 +78,9 @@ class Props{
         this.write({o: 1, id, prop, value})
     }
 
-    removeProp(id, prop, value){
+    removeProp(id, prop){
         id = parseInt(id)
+        let value = this.getProps(id)[prop]
         let pv = (prop + '__' + value).toLowerCase()
         if(this.prop2Id[pv] === undefined || this.prop2Id[pv].indexOf(id) < 0)
             return;
