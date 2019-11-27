@@ -5,6 +5,7 @@ let fs = require("fs")
 let Props = require("./types/props")
 let Rels = require("./types/rels")
 let Tags = require("./types/tags")
+let Blobs = require("./types/blobs")
 let Search = require("./search")
 
 class Entity{
@@ -19,6 +20,8 @@ class Entity{
                     return global.EntityStorage.tags.getTagsById(target._id);
                 } else if(name == "props") {
                     return global.EntityStorage.props.getProps(target._id);
+                } else if(name == "blob") {
+                    return global.EntityStorage.blobs.get(target._id);
                 } else if(name == "relations" || name == "rels") {
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
@@ -48,6 +51,8 @@ class Entity{
             set (obj, prop, value){
                 if(prop == "_id")
                     obj._id = value;
+                else if(prop == "blob")
+                    global.EntityStorage.blobs.set(obj._id, value);
                 else
                     global.EntityStorage.props.setProp(obj._id, prop, value);
                 return true;
@@ -72,6 +77,11 @@ class Entity{
         return this;
     }
 
+    setBlob(stream){
+        global.EntityStorage.blobs.set(this._id, stream)
+        return this;
+    }
+
     removeTag(tag){
         global.EntityStorage.tags.removeTag(this._id, tag)
         return this;
@@ -89,6 +99,11 @@ class Entity{
         return this;
     }
 
+    removeBlob(){
+        global.EntityStorage.blobs.delete(this._id)
+        return this;
+    }
+
     delete(){
         let rels = this.rels;
         Object.keys(rels).forEach(rel => {
@@ -103,6 +118,8 @@ class Entity{
         Object.keys(props).forEach(key => {
             this.removeProp(key)
         })
+
+        global.EntityStorage.blobs.delete(this._id)
     }
     
     static find(filter){
@@ -156,6 +173,7 @@ class EntityStorage{
         this.tags = await new Tags(path.resolve(dataPath, "tags.data")).init();
         this.rels = await new Rels(path.resolve(dataPath, "rels.data")).init();
         this.props = await new Props(path.resolve(dataPath, "props.data")).init();
+        this.blobs = await new Blobs(dataPath).init();
         this.search = await new Search().init();
         
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId()) + 1

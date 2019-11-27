@@ -55,8 +55,7 @@ class Blob{
         this.nextFileId++;
     }
 
-    async set(id, stream, encoding){
-        encoding = encoding || null;
+    async set(id, data){
         let writer = new Writer(this, id);
         if(this.blobs[id] !== undefined){
             throw "Data is already written to this entity. Delete it first."
@@ -64,22 +63,21 @@ class Blob{
 
         this.blobs[id] = []
 
-        if(typeof stream === "string"){
-            encoding = encoding || "utf8";
-            stream = Buffer.from(stream, encoding)
+        if(typeof data === "string"){
+            data = Buffer.from(data)
         }
 
-        if(Buffer.isBuffer(stream)){
-            if(stream.length <= this.maxFileSize){
-                await writer._write(stream, encoding)
+        if(Buffer.isBuffer(data)){
+            if(data.length <= this.maxFileSize){
+                await writer._write(data)
             } else {
                 let i = 0;
-                while (i < stream.length) {
+                while (i < data.length) {
                     await writer._write(buffer.slice(i, i += this.maxFileSize));
                 }
             }
-        } else if (typeof stream.on === 'function' && typeof stream.read === 'function'){
-           let p = stream.pipe(writer)
+        } else if (typeof data.on === 'function' && typeof data.read === 'function'){
+           let p = data.pipe(writer)
            await new Promise(resolve => p.on('finish', () => {
                writer.close()
                resolve()}
@@ -121,6 +119,14 @@ class Blob{
             curFileId++;
         }
     }
+
+    get(id){
+        if(this.blobs[id] === undefined)
+            return null;
+
+        let reader = new Reader(this, this.blobs[id]);
+        return reader;
+    }
 }
 
 class Writer extends stream.Writable{
@@ -143,7 +149,9 @@ class Writer extends stream.Writable{
 
         this.lastFileId = chunk.file;
         this.lastFd = fd;
-        callback()
+        if(typeof callback === 'function'){
+            callback()
+        }
     }
     
     close(){
@@ -154,29 +162,27 @@ class Writer extends stream.Writable{
 }
 
 class Reader extends stream.Readable{
-    constructor(...args){
-        let chunks = args.shift();
+    constructor(blob, chunks, ...args){
         super(...args)
 
+        this.blob = blob;
         this.chunks = chunks;
-        this.curStream = null;
-        this.curPos = null;
-        this.endPos = null;
-        this.chunkIdx = 0;
+        this.lastFileId = null;
     }
 
-    _read = function() {
-        /*
-        var num = this._curr;
-        var buf = Buffer.from(num.toString(), 'utf-8');
-        
-        this.push(buf);
-        this._curr++;
-    
-        if (num === this._end) {
-            this.push(null);
+    async _read () {
+        if(this.chunks.length < 1){
+            this.push(null)
+            return;
         }
-        */
+
+        let chunk = this.chunks.shift()
+        let fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'r')
+
+        let buffer = Buffer.alloc(chunk.size)
+        await fd.read(buffer, 0, chunk.size, chunk.pos)
+        this.lastFileId = chunk.file;
+        this.push(buffer);
     }
 }
 

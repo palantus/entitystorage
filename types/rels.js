@@ -58,7 +58,7 @@ class Relations{
                 this.idSet.add(id1)
                 this.idSet.add(id2)
                 
-            } else if(this.prop2Id[pv] !== undefined) {
+            } else if(this.id2Ids[id1] !== undefined) {
                 this.id2Ids[id1][rel].splice(this.id2Ids[id1][rel].indexOf(id2), 1);
                 this.id2IdsNoRel[id1].splice(this.id2IdsNoRel[id1].indexOf(id2), 1);
                 
@@ -68,7 +68,7 @@ class Relations{
                 if(this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1)
                     this.idSet.delete(id1)
                 
-                if(this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1)
+                if((this.id2Ids[id2] === undefined || this.id2Ids[id2].length < 1) && (this.id2IdsReverse[id2] === undefined || this.id2IdsReverse[id2].length < 1))
                     this.idSet.delete(id2)
             }
         })
