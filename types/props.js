@@ -58,6 +58,7 @@ class Props{
     }
 
     setProp(id, prop, value){
+        value = value || ""
         id = parseInt(id)
         let pv = (prop + '__' + value.substr(0, 100)).toLowerCase();
         if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0)
