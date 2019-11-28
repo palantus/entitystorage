@@ -10,9 +10,9 @@ let Search = require("./search")
 
 class Entity{
     
-    constructor(){
+    constructor(...args){
         this._id = global.EntityStorage.nextId
-        return new Proxy(this, {
+        let p = new Proxy(this, {
             get(target, name, receiver) {
                 if(name in target) {
                     return target[name]
@@ -26,7 +26,7 @@ class Entity{
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
                         rels[key] = rels[key].map(id => {
-                            let e = new target.constructor(); 
+                            let e = new target.constructor('_internal_init_'); 
                             e._id = id;
                             return e
                         })
@@ -36,7 +36,7 @@ class Entity{
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
                         if(rels[key][0]){
-                            let e = new target.constructor(); 
+                            let e = new target.constructor('_internal_init_'); 
                             e._id = rels[key][0];
                             rels[key] = e
                         } else {
@@ -58,6 +58,11 @@ class Entity{
                 return true;
             }
         });
+        
+        if(typeof p.initNew === "function" && (args.length != 1 || args[0] !== '_internal_init_')){
+            p.initNew.call(p, ...args)
+        }
+        return p;
     }
 
     tag(tag){
@@ -126,13 +131,13 @@ class Entity{
         return this.search(filter)[0] || null
     }
     
-    static findOrCreate(filter){
-        return this.find(filter) || new this();
+    static findOrCreate(filter, ...args){
+        return this.find(filter) || new this()
     }
 
     static search(filter){
         let t = this;
-        let entities = global.EntityStorage.search.search(filter).map(id => {let e = new this(); e._id = id; return e;})
+        let entities = global.EntityStorage.search.search(filter).map(id => {let e = new this('_internal_init_'); e._id = id; return e;})
 
         return new Proxy(entities, {
             get(target, name, receiver) {

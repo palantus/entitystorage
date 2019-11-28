@@ -48,13 +48,12 @@ console.log(e1.type) //shows 2
 
 ## Typed entities
 
-Create a typed entity like this:
+Create a typed entity like the following example. The function initNew will always be called when constructing a new instance with new.
 
 ```javascript
 class Assignment extends Entity{
     
-    constructor(num, title, release){
-        super();
+    initNew(num, title, release){
         this.num = num;
         this.title = title;
         this.release = release;
@@ -205,3 +204,28 @@ Entity static methods:
  - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
  - `search(filter)`: Search for filter and return all results as an array
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
+
+
+ ## Blobs
+
+Blobs can be assigned to an entity. An entity can only have one blob. Reading a blob will result in a Readable stream. When assigning a blob, it can be either a stream, a buffer or a string.
+
+```javascript
+
+// Storing from string
+new Entity().tag("file").setBlob("Hello world")
+let s2 = Entity.find("tag:file").blob
+s2.setEncoding('utf8');
+s2.on('data', data => console.log(data))
+s2.on('end', () => console.log("Done"))
+
+
+// Storing from stream
+e = new Entity()
+e.blob = fs.createReadStream("main.js");
+
+let stream = e.blob
+stream.setEncoding('utf8');
+stream.on('data', data => console.log(data))
+stream.on('end', () => console.log("Done"))
+```
