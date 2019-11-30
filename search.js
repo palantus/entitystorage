@@ -104,18 +104,28 @@ class Search{
                 return global.EntityStorage.tags.getByTag(token);
                 
               case "prop":
-                let [p, v] = token.split("=")
-                if(!p) return []
-                
                 res = null;
-                if(v.startsWith("~")){
-                  v = v.substr(1).toLowerCase()
+                if(token.indexOf("=") > 0){
+                  let [p, v] = token.split("=")
+                  res = global.EntityStorage.props.getIdsByProp(p, v);
+
+                } else if(token.indexOf("~") > 0){
+                  let [p, v] = token.split("~")
                   if(global.EntityStorage.indices.propcontains)
                     res = global.EntityStorage.indices.propcontains.word2Ids[v]
                   else
-                    return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().indexOf(v)>=0)
+                    return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (""+(global.EntityStorage.props.getProps(id)[p] || "")).toLowerCase().indexOf(v)>=0)
+
+                } else if(token.indexOf("<") > 0){
+                  let [p, v] = token.split("<")
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "") <= v)
+
+                } else if(token.indexOf(">") > 0){
+                  let [p, v] = token.split(">")
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "") >= v)
+
                 } else {
-                  res = global.EntityStorage.props.getIdsByProp(p, v);
+                  return []
                 }
                 return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
 

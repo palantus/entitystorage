@@ -110,7 +110,9 @@ console.log(Entity.search(`rel:${d}`).map(e => e.id))
 
 Relations can be searched using "rel:entity=relationname" where "=relationname" is optional. It will find all entities which has a relation to the entity with the given (optional) relation name.  Reverse relations (ie. find entities which the chosen entity has relations to), can be searched for using "relrev:entity=relationname".
 
-If you want to search for a word in a property, you can use "prop:myprop=~app".
+If you want to search for a string in a property, you can use "prop:myprop~app".
+
+If you want to search for a range, you can use "prop:myprop<123" and "prop:myprop>123".
 
 ## Stepping through relations
 

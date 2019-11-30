@@ -1,6 +1,6 @@
 {
     "name": "entitystorage",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "main": "main.js",
     "repository": "palantus/entitystorage",
     "License": "MIT",
