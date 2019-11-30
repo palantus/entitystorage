@@ -66,6 +66,8 @@ class Entity{
     }
 
     tag(tag){
+        if(tag === undefined || tag === null) 
+            return this; // To allow for .tag(addTag ? "tag" : null)
         global.EntityStorage.tags.addTag(this._id, tag)
         return this;
     }
