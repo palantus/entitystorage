@@ -191,15 +191,17 @@ Entity.search("tag:post").removeTag("migrated").removeRel(entityOld, "migrated")
 
 Entity instance methods:
  - `rel(e2, rel)`: Create a relation to e2 (Entity) with type rel (string)
- - `tag(tag)`: Add tag "tag" to entity.
+ - `tag(tag)`: Add tag "tag" to entity. Can be an array. null and undefined are ignored.
  - `prop(name, value)`: Set property "name" to "value".
  - `removeRel(e2, rel)`: Remove relation to e2 (Entity) of type rel (string)
  - `removeTag(tag)`: Remove tag "tag".
  - `removeProp(name)`: Remove property "name".
  - `delete()`: delete all information about the entity
+ - `setBlob`: set blob. Can be either a stream, a buffer or a string.
  - `rels`: get all relations (object like `{"rel1": [e1, e2], "rel2": [e1]}`)
  - `props`: get all properties as an object (also accessible using .propertyname directly on entity)
  - `tags`: get all tags (array)
+ - `blob`: get blob (stream)
 
 Entity static methods:
  - `find(filter)`: Search for filter "filter" and return first result

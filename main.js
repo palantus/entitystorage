@@ -68,6 +68,8 @@ class Entity{
     tag(tag){
         if(tag === undefined || tag === null) 
             return this; // To allow for .tag(addTag ? "tag" : null)
+        if(Array.isArray(tag))
+            return tag.reduce((ret, cur) => this.tag(cur), this)
         global.EntityStorage.tags.addTag(this._id, tag)
         return this;
     }
