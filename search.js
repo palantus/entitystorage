@@ -12,6 +12,7 @@ class Search{
 
     search(query){
         if(!query) return []
+        query = query.toLowerCase();
         let ast = this.parser.parse(query.trim())
     
         let doSearch = {

@@ -60,37 +60,41 @@ class Props{
     setProp(id, prop, value){
         value = value !== undefined ? value : ""
         id = parseInt(id)
-        let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-        if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0)
-            return;
-        
-        if(this.prop2Id[pv] === undefined)
-            this.prop2Id[pv] = [id]
-        else if(this.prop2Id[pv].indexOf(id) < 0)
-            this.prop2Id[pv].push(id)
-        else return;
 
         if(this.id2Props[id] === undefined){
             this.id2Props[id] = {}
+        } else if(this.id2Props[id][prop] == value){
+            return;
         }
+
         this.id2Props[id][prop] = value;
         this.idSet.add(id)
+
+        let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
+        if(this.prop2Id[pv] === undefined){
+            this.prop2Id[pv] = [id]
+        } else if(this.prop2Id[pv].indexOf(id) < 0){
+            this.prop2Id[pv].push(id)
+        }
 
         this.write({o: 1, id, prop, value})
     }
 
     removeProp(id, prop){
         id = parseInt(id)
-        let value = this.getProps(id)[prop]
-        let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-        if(this.prop2Id[pv] === undefined || this.prop2Id[pv].indexOf(id) < 0)
+        let value = this.id2Props[id][prop]
+
+        if(value === undefined)
             return;
-
-        this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(id), 1);
+            
         delete this.id2Props[id][prop];
-
         if(Object.entries(this.id2Props[id]).length === 0)
             this.idSet.delete(id)
+
+        let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
+        if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0){
+            this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(id), 1);
+        }
 
         this.write({o: 0, id, prop, value})
     }
