@@ -27,12 +27,13 @@ class Tags{
         await rd.read(this.dbPath, (data) => {
             let id = data.id
             let tag = data.tag
+            let tagLower = tag.toLowerCase()
 
             if(data.o == 1){
-                if(this.tag2ids[tag] === undefined){
-                    this.tag2ids[tag] = [id]
-                } else if(this.tag2ids[tag].indexOf(id) < 0){
-                    this.tag2ids[tag].push(id)
+                if(this.tag2ids[tagLower] === undefined){
+                    this.tag2ids[tagLower] = [id]
+                } else if(this.tag2ids[tagLower].indexOf(id) < 0){
+                    this.tag2ids[tagLower].push(id)
                 } else return;
         
                 if(this.id2tags[id] === undefined)
@@ -42,8 +43,8 @@ class Tags{
 
                 this.idSet.add(id)
 
-            } else if(this.tag2ids[data.tag] !== undefined) {
-                this.tag2ids[tag].splice(this.tag2ids[tag].indexOf(id), 1)
+            } else if(this.tag2ids[tagLower] !== undefined) {
+                this.tag2ids[tagLower].splice(this.tag2ids[tagLower].indexOf(id), 1)
                 this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
                 if(this.id2tags[id].length < 1)
                     this.idSet.delete(id)
@@ -62,14 +63,15 @@ class Tags{
 
     addTag(id, tag){
         id = parseInt(id)
+        let tagLower = tag.toLowerCase()
 
-        if(this.tag2ids[tag] !== undefined && this.tag2ids[tag].indexOf(tag) >= 0)
+        if(this.tag2ids[tagLower] !== undefined && this.tag2ids[tagLower].indexOf(id) >= 0)
             return;
         
-        if(this.tag2ids[tag] === undefined){
-            this.tag2ids[tag] = [id]
-        } else if(this.tag2ids[tag].indexOf(id) < 0){
-            this.tag2ids[tag].push(id)
+        if(this.tag2ids[tagLower] === undefined){
+            this.tag2ids[tagLower] = [id]
+        } else if(this.tag2ids[tagLower].indexOf(id) < 0){
+            this.tag2ids[tagLower].push(id)
         } else return;
 
         if(this.id2tags[id] === undefined)
@@ -84,11 +86,12 @@ class Tags{
 
     removeTag(id, tag){
         id = parseInt(id)
+        let tagLower = tag.toLowerCase()
         
-        if(this.tag2ids[tag] === undefined || this.tag2ids[tag].indexOf(id) < 0)
+        if(this.tag2ids[tagLower] === undefined || this.tag2ids[tagLower].indexOf(id) < 0)
             return;
 
-        this.tag2ids[tag].splice(this.tag2ids[tag].indexOf(id), 1)
+        this.tag2ids[tagLower].splice(this.tag2ids[tagLower].indexOf(id), 1)
         this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
 
         if(this.id2tags[id].length < 1)
@@ -98,7 +101,7 @@ class Tags{
     }
 
     getByTag(tag){
-        return this.tag2ids[tag] || [];
+        return this.tag2ids[tag.toLowerCase()] || [];
     }
 
     getTagsById(id){
