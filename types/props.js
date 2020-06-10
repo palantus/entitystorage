@@ -67,6 +67,10 @@ class Props{
             return;
         }
 
+        if(this.id2Props[id][prop] !== undefined){
+            this.removeProp(id, prop)
+        }
+
         this.id2Props[id][prop] = value;
         this.idSet.add(id)
 
@@ -94,6 +98,9 @@ class Props{
         let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
         if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0){
             this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(id), 1);
+            if(this.prop2Id[pv].length < 1){
+                delete this.prop2Id[pv];
+            }
         }
 
         this.write({o: 0, id, prop, value})
