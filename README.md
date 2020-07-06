@@ -15,7 +15,7 @@ Entities only exists by their properties. If you remove the last tag and it does
 Note: Better documentation coming :)
 
 ```javascript
-let Entity = require("../main.js")
+let Entity = require("entitystorage")
 
 await Entity.init("./data");
 
