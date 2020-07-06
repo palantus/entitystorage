@@ -44,8 +44,9 @@ class Tags{
                 this.idSet.add(id)
 
             } else if(this.tag2ids[tagLower] !== undefined) {
-                this.tag2ids[tagLower].splice(this.tag2ids[tagLower].indexOf(id), 1)
-                this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
+                this.tag2ids[tagLower] = this.tag2ids[tagLower].filter(i => i != id)
+                this.id2tags[id] = this.id2tags[id].filter(t => t != tag);
+
                 if(this.id2tags[id].length < 1)
                     this.idSet.delete(id)
             }
@@ -91,8 +92,8 @@ class Tags{
         if(this.tag2ids[tagLower] === undefined || this.tag2ids[tagLower].indexOf(id) < 0)
             return;
 
-        this.tag2ids[tagLower].splice(this.tag2ids[tagLower].indexOf(id), 1)
-        this.id2tags[id].splice(this.id2tags[id].indexOf(tag), 1)
+        this.tag2ids[tagLower] = this.tag2ids[tagLower].filter(i => i != id)
+        this.id2tags[id] = this.id2tags[id].filter(t => t != tag);
 
         if(this.id2tags[id].length < 1)
             this.idSet.delete(id)

@@ -59,16 +59,24 @@ class Relations{
                 this.idSet.add(id2)
                 
             } else if(this.id2Ids[id1] !== undefined) {
-                this.id2Ids[id1][rel].splice(this.id2Ids[id1][rel].indexOf(id2), 1);
-                this.id2IdsNoRel[id1].splice(this.id2IdsNoRel[id1].indexOf(id2), 1);
-                
-                this.id2IdsReverse[id2][rel].splice(this.id2IdsReverse[id2][rel].indexOf(id1), 1);
-                this.id2IdsReverseNoRel[id2].splice(this.id2IdsReverseNoRel[id2].indexOf(id1), 1);
+                this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
+                if(this.id2Ids[id1][rel].length == 0) delete this.id2Ids[id1][rel];
 
-                if(this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1)
+                if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0)
+                    this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
+                if(this.id2IdsNoRel[id1].length == 0) delete this.id2IdsNoRel[id1];
+
+                this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
+                if(this.id2IdsReverse[id2][rel].length == 0) delete this.id2IdsReverse[id2][rel];
+                
+                if(Object.values(this.id2IdsReverse[id2]).reduce((total, cur) => total + (cur.includes(id1) ? 1 : 0), 0) == 0)
+                    this.id2IdsReverseNoRel[id2] = this.id2IdsReverseNoRel[id2].filter(id => id != id1)
+                if(this.id2IdsReverseNoRel[id2].length == 0) delete this.id2IdsReverseNoRel[id2];
+
+                if(this.id2IdsNoRel[id1] === undefined && this.id2IdsReverseNoRel[id1] === undefined)
                     this.idSet.delete(id1)
                 
-                if((this.id2Ids[id2] === undefined || this.id2Ids[id2].length < 1) && (this.id2IdsReverse[id2] === undefined || this.id2IdsReverse[id2].length < 1))
+                if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
                     this.idSet.delete(id2)
             }
         })
@@ -135,21 +143,24 @@ class Relations{
         if(this.id2Ids[id1] === undefined || this.id2Ids[id1][rel] === undefined || this.id2Ids[id1][rel].indexOf(id2) < 0)
             return;
 
-        this.id2Ids[id1][rel].splice(this.id2Ids[id1][rel].indexOf(id2), 1);
-        this.id2IdsNoRel[id1].splice(this.id2IdsNoRel[id1].indexOf(id2), 1);
-        
-        this.id2IdsReverse[id2][rel].splice(this.id2IdsReverse[id2][rel].indexOf(id1), 1);
-        this.id2IdsReverseNoRel[id2].splice(this.id2IdsReverseNoRel[id2].indexOf(id1), 1);
-        
+        this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
         if(this.id2Ids[id1][rel].length == 0) delete this.id2Ids[id1][rel];
-        if(this.id2IdsNoRel[id1].length == 0) delete this.id2Ids[id1][rel];
-        if(this.id2IdsReverse[id2][rel].length == 0) delete this.id2Ids[id1][rel];
-        if(this.id2IdsReverseNoRel[id2].length == 0) delete this.id2Ids[id1][rel];
 
-        if(this.id2Ids[id1] === undefined || (this.id2Ids[id1].length < 1 && this.id2IdsReverse[id1].length < 1))
+        if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0)
+            this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
+        if(this.id2IdsNoRel[id1].length == 0) delete this.id2IdsNoRel[id1];
+
+        this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
+        if(this.id2IdsReverse[id2][rel].length == 0) delete this.id2IdsReverse[id2][rel];
+        
+        if(Object.values(this.id2IdsReverse[id2]).reduce((total, cur) => total + (cur.includes(id1) ? 1 : 0), 0) == 0)
+            this.id2IdsReverseNoRel[id2] = this.id2IdsReverseNoRel[id2].filter(id => id != id1)
+        if(this.id2IdsReverseNoRel[id2].length == 0) delete this.id2IdsReverseNoRel[id2];
+
+        if(this.id2IdsNoRel[id1] === undefined && this.id2IdsReverseNoRel[id1] === undefined)
             this.idSet.delete(id1)
         
-        if(this.id2Ids[id2] === undefined || (this.id2Ids[id2].length < 1 && this.id2IdsReverse[id2].length < 1))
+        if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
             this.idSet.delete(id2)
 
         this.write({o: 0, id1, id2, rel})
@@ -173,6 +184,10 @@ class Relations{
 
     getRelations(id){
         return this.id2Ids[id] || {};
+    }
+
+    getRelationsReverse(id){
+        return this.id2IdsReverse[id] || {};
     }
 }
 

@@ -32,6 +32,16 @@ class Entity{
                         })
                       });
                     return rels;
+                } else if(name == "relationsrev" || name == "relsrev") {
+                    let rels = {...global.EntityStorage.rels.getRelationsReverse(target._id)}
+                    Object.keys(rels).map((key, index) => {
+                        rels[key] = rels[key].map(id => {
+                            let e = new target.constructor('_internal_init_'); 
+                            e._id = id;
+                            return e
+                        })
+                      });
+                    return rels;
                 } else if(name == "related") {
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
@@ -118,6 +128,12 @@ class Entity{
         Object.keys(rels).forEach(rel => {
             rels[rel].forEach(e => {
                 this.removeRel(e, rel)
+            });
+        })
+        rels = this.relsrev;
+        Object.keys(rels).forEach(rel => {
+            rels[rel].forEach(e => {
+                e.removeRel(this, rel)
             });
         })
 
