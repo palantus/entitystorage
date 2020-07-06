@@ -12,6 +12,7 @@ class Search{
 
     search(query){
         if(!query) return []
+        if(query === "*") return global.EntityStorage.getAllIds();
         query = query.toLowerCase();
         let ast = this.parser.parse(query.trim())
     

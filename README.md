@@ -114,6 +114,8 @@ If you want to search for a string in a property, you can use "prop:myprop~app".
 
 If you want to search for a range, you can use "prop:myprop<123" and "prop:myprop>123".
 
+If you just want to return all entities, search for "*".
+
 ## Stepping through relations
 
 Relations can be steeped through using .related:
