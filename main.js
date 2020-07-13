@@ -175,6 +175,21 @@ class Entity{
 
     static async init(dataPath){
         await new EntityStorage().init(dataPath);
+
+        return {
+            uiPath: path.join(__dirname, "www"),
+            uiAPI: (req, res, next) => {
+                let query = req.params.query;
+                
+                let result = Entity.search(query)
+                console.log(query)
+                console.log(result)
+                res.writeHead(200, {'Content-Type':'application/json'});
+                res.end(JSON.stringify(result.map(e => {
+                    return {id: e._id, props: e.props, tags: e.tags, rels: e.rels}
+                })));
+            }
+        }
     }
 }
 

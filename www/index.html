@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+	<title>Data browser</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=10,IE=9,IE=8,IE=edge" />
+
+  <link rel="icon" type="image/png" href="/img/schedule.png" />
+  
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="ui.js"></script>
+  
+
+</head>
+<body>
+    <div id="searchcontainer">
+        <input type="text" id="query" placeholder="Enter query and hit enter to search"/>
+    </div>
+    <div id="resultcontainer">
+        <table id="result" style="display:none">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Properties</th>
+                    <th>Tags</th>
+                    <th>Relations</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+        <h2 id="message" style="display:none;"></h2>
+    </div>
+
+</body>
+</html>

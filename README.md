@@ -235,3 +235,26 @@ stream.setEncoding('utf8');
 stream.on('data', data => console.log(data))
 stream.on('end', () => console.log("Done"))
 ```
+
+## User Interface
+
+There is a very minimalist user interface embedded. It can be used in an existing express (or similar) environment like the following. In this case you can then use the user interface on ''.../db''.
+
+```javascript
+let {uiPath, uiAPI} = await Entity.init("./data");
+app.use("/db", express.static(uiPath))
+app.use("/db/api/:query", uiAPI)
+```
+
+*Please make sure to disable it in production or at least secure it!*
+
+To combine it with MSCP, use the following:
+```javascript
+let {uiPath, uiAPI} = await Entity.init("./data");
+mscp.use("/db/api/:query", uiAPI)
+mscp.static("/db", uiPath)
+```
+
+### Usage
+
+Enter query and hit enter to search. Please notice that you can click on tags, properties and relation id's to navigate to a search for them.
