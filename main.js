@@ -155,15 +155,15 @@ class Entity{
         return this.find(filter) || new this()
     }
 
-    static search(filter){
+    static search(filter, args){
         let t = this;
-        let entities = global.EntityStorage.search.search(filter).map(id => {let e = new this('_internal_init_'); e._id = id; return e;})
+        let entities = global.EntityStorage.search.search(filter, args).map(id => {let e = new this('_internal_init_'); e._id = id; return e;})
 
         return new Proxy(entities, {
-            get(target, name, receiver) {
+            get: (target, name, receiver) => {
                 if(name in target) {
                     return target[name]
-                } else if(target.length > 0 && typeof target[0][name] === "function"){
+                } else if(typeof new this('_internal_init_')[name] === "function"){
                     return function(...args) {
                         target.forEach(e => e[name](...args));
                         return this;

@@ -116,6 +116,17 @@ If you want to search for a range, you can use "prop:myprop<123" and "prop:mypro
 
 If you just want to return all entities, search for "*".
 
+## Pagination
+
+Search results are always sorted by their internal id (insert order) and the order is therefore guarenteed not to change on later searches. The "search" function has an optional second argument called args, which accepts the following properties:
+
+ - `first`: Integer. Results includes the "first" number of results from the result-set from the beginning of the array.
+ - `last`: Integer. Results includes the "last" number of results from the result-set from the end of the array.
+ - `start`: Integer. Results start at index "start".
+ - `end`: Integer. Results end at index "start".
+
+It is recommended to do pagination using the above properties instead of eg. "slice", because using slice will prevent you from calling eg. ".tag()" on the array afterwards.
+
 ## Stepping through relations
 
 Relations can be steeped through using .related:
@@ -208,7 +219,7 @@ Entity instance methods:
 Entity static methods:
  - `find(filter)`: Search for filter "filter" and return first result
  - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
- - `search(filter)`: Search for filter and return all results as an array
+ - `search(filter, args)`: Search for filter and return all results as an array
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
 
 

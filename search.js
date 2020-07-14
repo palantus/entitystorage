@@ -10,12 +10,7 @@ class Search{
         return this;
     }
 
-    search(query){
-        if(!query) return []
-        if(query === "*") return global.EntityStorage.getAllIds();
-        query = query.toLowerCase();
-        let ast = this.parser.parse(query.trim())
-    
+    search(query, {last, first, start, end} = {}){
         let doSearch = {
           handleExpression: function(e, fixedStartSet) {
             let res1;
@@ -157,15 +152,40 @@ class Search{
           }
         }
         
+        let res;
+        let hrstart
+
+        if(global.benchmarkSearch === true){
+          hrstart = process.hrtime()
+        }
+
+        if(!query){
+          res = []
+        } else if(query === "*"){
+          res = global.EntityStorage.getAllIds();
+        } else {
+          query = query.toLowerCase();
+          let ast = this.parser.parse(query.trim())
+          res = doSearch.handleExpression(ast);
+        }
+
+        res = res.sort()
+
         if(global.benchmarkSearch === true){
           let hrstart = process.hrtime()
-          let res = doSearch.handleExpression(ast);
           let hrend = process.hrtime(hrstart)
           console.info('Searched %d entities in %ds %dms. Found %d results.', doSearch.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
-          return res;
-
         }
-        return doSearch.handleExpression(ast);
+
+        if(!isNaN(first))
+          res = res.slice(0, first)
+        if(!isNaN(last))
+          res = res.slice(Math.max(res.length - last, 0))
+          
+        if(!isNaN(start) || !isNaN(end))
+          res = res.slice((start||0) >= 0 ? (start||0) : 0, (end||res.length) >= 0 ? (end+1||res.length) : res.length)
+          
+        return res;
       }
 }
 
