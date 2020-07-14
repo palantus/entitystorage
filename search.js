@@ -10,7 +10,7 @@ class Search{
         return this;
     }
 
-    search(query, {last, first, start, end} = {}){
+    search(query, {last, first, start, end, after, before} = {}){
         let doSearch = {
           handleExpression: function(e, fixedStartSet) {
             let res1;
@@ -185,6 +185,11 @@ class Search{
         if(!isNaN(start) || !isNaN(end))
           res = res.slice((start||0) >= 0 ? (start||0) : 0, (end||res.length) >= 0 ? (end+1||res.length) : res.length)
           
+        if(!isNaN(after))
+          res = res.filter(id => id > after)
+        if(!isNaN(before))
+          res = res.filter(id => id < before)
+
         return res;
       }
 }

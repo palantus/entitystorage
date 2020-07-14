@@ -124,6 +124,8 @@ Search results are always sorted by their internal id (insert order) and the ord
  - `last`: Integer. Results includes the "last" number of results from the result-set from the end of the array.
  - `start`: Integer. Results start at index "start".
  - `end`: Integer. Results end at index "start".
+ - `after`: Integer. Results with a higher id than the provided (id's can be extracted using entity._id)
+ - `before`: Integer. Results with a lower id than the provided (id's can be extracted using entity._id)
 
 It is recommended to do pagination using the above properties instead of eg. "slice", because using slice will prevent you from calling eg. ".tag()" on the array afterwards.
 
