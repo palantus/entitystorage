@@ -169,7 +169,7 @@ class Search{
           res = doSearch.handleExpression(ast);
         }
 
-        res = res.sort()
+        res = res.sort((a, b) => a < b ? -1 : 1)
 
         if(global.benchmarkSearch === true){
           let hrstart = process.hrtime()
