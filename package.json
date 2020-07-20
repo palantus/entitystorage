@@ -1,6 +1,6 @@
 {
     "name": "entitystorage",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "main": "main.js",
     "repository": "palantus/entitystorage",
     "License": "MIT",
@@ -9,7 +9,7 @@
         "node": ">=7.0.0"
     },
     "dependencies": {
-        "bson": "^4.0.2",
-        "searchqueryparser": "^1.0.11"
+        "bson": "^4.0.4",
+        "searchqueryparser": "^1.0.12"
     }
 }

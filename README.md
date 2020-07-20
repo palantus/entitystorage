@@ -116,6 +116,8 @@ If you want to search for a range, you can use "prop:myprop<123" and "prop:mypro
 
 If you just want to return all entities, search for "*".
 
+If you want to search for a property starting or ending with a specific string, use the caret (^) symbol. (eg. "prop:type=^T" for starting with T and "prop:type=T^" for ending with T).
+
 ## Pagination
 
 Search results are always sorted by their internal id (insert order) and the order is therefore guarenteed not to change on later searches. The "search" function has an optional second argument called args, which accepts the following properties:
