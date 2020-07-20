@@ -177,17 +177,20 @@ class Search{
           console.info('Searched %d entities in %ds %dms. Found %d results.', doSearch.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
         }
 
-        if(!isNaN(first))
+        if(first != null && !isNaN(first))
           res = res.slice(0, first)
-        if(!isNaN(last))
+        if(last != null && !isNaN(last))
           res = res.slice(Math.max(res.length - last, 0))
           
-        if(!isNaN(start) || !isNaN(end))
-          res = res.slice((start||0) >= 0 ? (start||0) : 0, (end||res.length) >= 0 ? (end+1||res.length) : res.length)
+        if((start != null && !isNaN(start)) || (end != null && !isNaN(end))){
+          let starIdx = start||0
+          let endIdx = end != null ? end : res.length
+          res = res.slice(starIdx, endIdx+1)
+        }
           
-        if(!isNaN(after))
+        if(after != null && !isNaN(after))
           res = res.filter(id => id > after)
-        if(!isNaN(before))
+        if(before != null && !isNaN(before))
           res = res.filter(id => id < before)
 
         return res;
