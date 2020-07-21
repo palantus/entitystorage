@@ -124,8 +124,8 @@ Search results are always sorted by their internal id (insert order) and the ord
 
  - `first`: Integer. Results includes the "first" number of results from the result-set from the beginning of the array.
  - `last`: Integer. Results includes the "last" number of results from the result-set from the end of the array.
- - `start`: Integer. Results start at index "start".
- - `end`: Integer. Results end at index "start".
+ - `start`: Integer. Results start at index "start" (including).
+ - `end`: Integer. Results end at index "end" (including).
  - `after`: Integer. Results with a higher id than the provided (id's can be extracted using entity._id)
  - `before`: Integer. Results with a lower id than the provided (id's can be extracted using entity._id)
 
