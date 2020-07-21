@@ -120,7 +120,7 @@ If you want to search for a property starting or ending with a specific string, 
 
 ## Pagination
 
-Search results are always sorted by their internal id (insert order) and the order is therefore guarenteed not to change on later searches. The "search" function has an optional second argument called args, which accepts the following properties:
+Search results are always sorted by their internal id (insert order) and the order is therefore guaranteed not to change on later searches. The "search" function has an optional second argument called args, which accepts the following properties:
 
  - `first`: Integer. Results includes the "first" number of results from the result-set from the beginning of the array.
  - `last`: Integer. Results includes the "last" number of results from the result-set from the end of the array.
