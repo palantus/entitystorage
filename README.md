@@ -104,8 +104,8 @@ let d = new Entity().prop("id", "D").tag("test1").prop("type", "T3").rel(a)
 console.log(Entity.search("tag:test2 (!tag:test1|prop:type=T3)").map(e => e.id))
 //Outputs [ 'B', 'C' ]
 
-console.log(Entity.search(`rel:${d}`).map(e => e.id))
-// Outputs [ 'A' ]
+console.log(Entity.search(`rel:${a}`).map(e => e.id))
+// Outputs [ 'D' ]
 ```
 
 Relations can be searched using "rel:entity=relationname" where "=relationname" is optional. It will find all entities which has a relation to the entity with the given (optional) relation name.  Reverse relations (ie. find entities which the chosen entity has relations to), can be searched for using "relrev:entity=relationname".

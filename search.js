@@ -95,6 +95,9 @@ class Search{
                   return fixedStartSet.indexOf(id) >= 0 ? [id] : []
                 return [id]
 
+              case "*":
+                return fixedStartSet || this.getAllIds()
+
               case "tag":
                 if(fixedStartSet)
                   return global.EntityStorage.tags.getByTag(token).filter(id => fixedStartSet.includes(id))
