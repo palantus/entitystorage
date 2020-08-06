@@ -176,7 +176,7 @@ class Search{
         } else if(query === "*"){
           res = global.EntityStorage.getAllIds();
         } else {
-          query = query.toLowerCase();
+          //query = query.toLowerCase();
           let ast = this.parser.parse(query.trim())
           res = doSearch.handleExpression(ast);
         }
