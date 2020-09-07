@@ -15,6 +15,13 @@ class Entity{
         let p = new Proxy(this, {
             get(target, name, receiver) {
                 if(name in target) {
+                    if(typeof target[name] === "function")
+                      return target[name]
+
+                    // Handle getters
+                    if(Object.getOwnPropertyDescriptor(p.constructor.prototype, name).get !== undefined)
+                      return Object.getOwnPropertyDescriptor(p.constructor.prototype, name).get.call(p)
+                    
                     return target[name]
                 } else if(name == "tags") {
                     return global.EntityStorage.tags.getTagsById(target._id);
@@ -63,6 +70,8 @@ class Entity{
                     obj._id = value;
                 else if(prop == "blob")
                     global.EntityStorage.blobs.set(obj._id, value);
+                else if(prop in obj && Object.getOwnPropertyDescriptor(p.constructor.prototype, prop).set !== undefined) // Handle setters
+                    Object.getOwnPropertyDescriptor(p.constructor.prototype, prop).set.call(p, value)
                 else
                     global.EntityStorage.props.setProp(obj._id, prop, value);
                 return true;
