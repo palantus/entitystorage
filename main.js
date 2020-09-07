@@ -15,7 +15,7 @@ class Entity{
         let p = new Proxy(this, {
             get(target, name, receiver) {
                 if(name in target) {
-                    if(typeof target[name] === "function")
+                    if(name == "constructor")
                       return target[name]
 
                     // Handle getters
