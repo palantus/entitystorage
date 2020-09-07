@@ -19,8 +19,9 @@ class Entity{
                       return target[name]
 
                     // Handle getters
-                    if(Object.getOwnPropertyDescriptor(p.constructor.prototype, name).get !== undefined)
-                      return Object.getOwnPropertyDescriptor(p.constructor.prototype, name).get.call(p)
+                    let desc = Object.getOwnPropertyDescriptor(p.constructor.prototype, name)
+                    if(desc && desc.get !== undefined)
+                      return desc.get.call(p)
                     
                     return target[name]
                 } else if(name == "tags") {
