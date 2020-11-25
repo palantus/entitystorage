@@ -11,7 +11,8 @@ let Search = require("./search")
 class Entity{
     
     constructor(...args){
-        this._id = global.EntityStorage.nextId
+        if(!args || args.length < 1 || args[0] != "_internal_init_")
+          this._id = global.EntityStorage.nextId
         let p = new Proxy(this, {
             get(target, name, receiver) {
                 if(name in target) {
