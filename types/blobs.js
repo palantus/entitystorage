@@ -25,7 +25,7 @@ class Blob{
 
     async write(data){
         if(this.writeHandler === undefined)
-            this.writeHandler = new WriteHandler(this.dbPath);
+            this.writeHandler = new WriteHandler(path.resolve(this.dbPath, "blob_index.data"));
 
         await this.writeHandler.write(data)
     }
@@ -34,14 +34,13 @@ class Blob{
         let rd = new ReadHandler();
         await rd.read(path.resolve(this.dbPath, 'blob_index.data'), (data) => {
             let id = data.id
-
             if(data.o == 1){
-
                 this.idSet.add(id)
-
-            } else if(this.idSet.has(data.tag)) {
-
+                this.blobs[id] = data.c
+            } else if(this.idSet.has(data.id)) {
                 this.idSet.delete(id)
+                delete this.blobs[id];
+                this.freedChunks.push(...data.fc)
             }
         })
 
@@ -85,14 +84,18 @@ class Blob{
         } else {
             throw "Unknown type for blob. Supports strings, buffers and streams"
         }
+
+        this.write({o: 1, id, c: this.blobs[id]})
     }
 
     delete(id){
         if(this.blobs[id] !== undefined){
+            this.write({o: 0, id, fc: this.blobs[id]})
             if(this.blobs[id].length > 0)
                 this.freedChunks.push(...this.blobs[id])
             delete this.blobs[id]
         }
+        this.idSet.delete(id)
     }
         
     getFreeChunk(size, preferFile){
@@ -124,7 +127,7 @@ class Blob{
         if(this.blobs[id] === undefined)
             return null;
 
-        let reader = new Reader(this, this.blobs[id]);
+        let reader = new Reader(this, [...this.blobs[id]]);
         return reader;
     }
 }
@@ -143,6 +146,7 @@ class Writer extends stream.Writable{
 
         let chunk = this.blob.getFreeChunk(data.length, this.lastFileId || null)
 
+        
         this.blob.blobs[this.id].push(chunk)
         let fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'w+')
         await fd.write(data, 0, data.length, chunk.pos)
