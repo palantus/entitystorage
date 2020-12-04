@@ -16,6 +16,9 @@ class Blob{
         this.dbPath = dbPath || "./"
         this.nextFileId = 1;
         this.maxFileSize = 100000000; // 100MB; max size of individual data files (not blobs!)
+        this.isWriting = false;
+        this.writingPromise = null;
+        this.cacheWhenWriting = {}
     }
 
     async init(){
@@ -34,9 +37,20 @@ class Blob{
         let rd = new ReadHandler();
         await rd.read(path.resolve(this.dbPath, 'blob_index.data'), (data) => {
             let id = data.id
+            
             if(data.o == 1){
                 this.idSet.add(id)
                 this.blobs[id] = data.c
+                for(let c of data.c){
+                  this.nextFileId = Math.max(this.nextFileId, c.file + 1)
+                  let file = this.files.find(f => f.id == c.file)
+                  if(!file){
+                    file = {id: c.file, size: 0}
+                    this.files.push(file)
+                  }
+                  file.size += c.size
+                }
+                
             } else if(this.idSet.has(data.id)) {
                 this.idSet.delete(id)
                 delete this.blobs[id];
@@ -55,37 +69,52 @@ class Blob{
     }
 
     async set(id, data){
-        let writer = new Writer(this, id);
         if(this.blobs[id] !== undefined){
             throw "Data is already written to this entity. Delete it first."
         }
-
+        this.idSet.add(id)
         this.blobs[id] = []
 
         if(typeof data === "string"){
             data = Buffer.from(data)
         }
 
-        if(Buffer.isBuffer(data)){
-            if(data.length <= this.maxFileSize){
-                await writer._write(data)
-            } else {
-                let i = 0;
-                while (i < data.length) {
-                    await writer._write(buffer.slice(i, i += this.maxFileSize));
-                }
-            }
-        } else if (typeof data.on === 'function' && typeof data.read === 'function'){
-           let p = data.pipe(writer)
-           await new Promise(resolve => p.on('finish', () => {
-               writer.close()
-               resolve()}
-            ))
-        } else {
-            throw "Unknown type for blob. Supports strings, buffers and streams"
-        }
+        this.cacheWhenWriting[id] = data;
 
-        this.write({o: 1, id, c: this.blobs[id]})
+        while(this.isWriting){
+            await this.lockPromise;
+        }
+        this.isWriting = true;
+
+        this.lockPromise = new Promise(async resolve => {
+          let writer = new Writer(this, id);
+          if(Buffer.isBuffer(data)){
+              if(data.length <= this.maxFileSize){
+                  await writer._write(data)
+              } else {
+                  let i = 0;
+                  while (i < data.length) {
+                      await writer._write(buffer.slice(i, i += this.maxFileSize));
+                  }
+              }
+              writer.close()
+          } else if (typeof data.on === 'function' && typeof data.read === 'function'){
+            
+              let p = data.pipe(writer)
+              await new Promise(resolve => p.on('finish', () => {
+                writer.close()
+                resolve()}
+              ))
+          } else {
+              throw "Unknown type for blob. Supports strings, buffers and streams"
+          }
+
+          this.write({o: 1, id, c: this.blobs[id]})
+          this.isWriting = false;
+          resolve();
+          delete this.cacheWhenWriting[id]
+        })
+        await this.lockPromise
     }
 
     delete(id){
@@ -127,8 +156,19 @@ class Blob{
         if(this.blobs[id] === undefined)
             return null;
 
+        if(this.cacheWhenWriting[id] !== undefined)
+          return stream.Readable.from(this.cacheWhenWriting[id]);
+
         let reader = new Reader(this, [...this.blobs[id]]);
         return reader;
+    }
+
+    getMaxId(){
+        return Array.from(this.idSet).reduce((max, e) => Math.max(max, e), 0);
+    }
+
+    getAllIds(){
+        return this.idSet.values()
     }
 }
 
@@ -143,12 +183,17 @@ class Writer extends stream.Writable{
     }
 
     async _write(data, encoding, callback) {
-
         let chunk = this.blob.getFreeChunk(data.length, this.lastFileId || null)
-
         
         this.blob.blobs[this.id].push(chunk)
-        let fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'w+')
+        let filename = path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`)
+
+        // Create file (ther is no mode that allows writing and doesn't truncate)
+        let fd = await fs.open(filename, 'a');
+        await fd.close()
+
+        // Open for writing
+        fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(filename, 'r+')
         await fd.write(data, 0, data.length, chunk.pos)
 
         this.lastFileId = chunk.file;

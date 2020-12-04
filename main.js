@@ -225,7 +225,7 @@ class EntityStorage{
         this.blobs = await new Blobs(dataPath).init();
         this.search = await new Search().init();
         
-        this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId()) + 1
+        this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1
         global.EntityStorage = this;
 
         this.indices = {}
@@ -247,7 +247,10 @@ class EntityStorage{
         if(global.benchmarkSearch === true){
             hrstart = process.hrtime()
         }
-        let res = [...new Set([...this.tags.getAllIds(), ...this.rels.getAllIds(), ...this.props.getAllIds()])];
+        let res = [...new Set([...this.tags.getAllIds(), 
+                               ...this.rels.getAllIds(), 
+                               ...this.props.getAllIds(), 
+                               ...this.blobs.getAllIds()])];
         
         if(global.benchmarkSearch === true){
             let hrend = process.hrtime(hrstart)
