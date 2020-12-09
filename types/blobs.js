@@ -193,7 +193,15 @@ class Writer extends stream.Writable{
         await fd.close()
 
         // Open for writing
-        fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(filename, 'r+')
+        if(this.lastFileId == chunk.file){
+          fd = this.lastFd;
+        } else {
+          if(this.lastFd){
+            fs.close(this.lastFd)
+          }
+          fd = await fs.open(filename, 'r+')
+        }
+
         await fd.write(data, 0, data.length, chunk.pos)
 
         this.lastFileId = chunk.file;
@@ -222,11 +230,23 @@ class Reader extends stream.Readable{
     async _read () {
         if(this.chunks.length < 1){
             this.push(null)
+            if(this.lastFd){
+              fs.close(this.lastFd)
+            }
             return;
         }
 
         let chunk = this.chunks.shift()
-        let fd = this.lastFileId == chunk.file ? this.lastFd : await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'r')
+
+        let fd;
+        if(this.lastFileId == chunk.file){
+          fd = this.lastFd;
+        } else {
+          if(this.lastFd){
+            fs.close(this.lastFd)
+          }
+          fd = await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'r')
+        }
 
         let buffer = Buffer.alloc(chunk.size)
         await fd.read(buffer, 0, chunk.size, chunk.pos)
