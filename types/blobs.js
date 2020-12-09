@@ -197,7 +197,7 @@ class Writer extends stream.Writable{
           fd = this.lastFd;
         } else {
           if(this.lastFd){
-            fs.close(this.lastFd)
+            this.lastFd.close()
           }
           fd = await fs.open(filename, 'r+')
         }
@@ -231,7 +231,7 @@ class Reader extends stream.Readable{
         if(this.chunks.length < 1){
             this.push(null)
             if(this.lastFd){
-              fs.close(this.lastFd)
+              this.lastFd.close()
             }
             return;
         }
@@ -243,7 +243,7 @@ class Reader extends stream.Readable{
           fd = this.lastFd;
         } else {
           if(this.lastFd){
-            fs.close(this.lastFd)
+            this.lastFd.close()
           }
           fd = await fs.open(path.resolve(this.blob.dbPath, `blob_${chunk.file}.data`), 'r')
         }
@@ -251,6 +251,7 @@ class Reader extends stream.Readable{
         let buffer = Buffer.alloc(chunk.size)
         await fd.read(buffer, 0, chunk.size, chunk.pos)
         this.lastFileId = chunk.file;
+        this.lastFd = fd
         this.push(buffer);
     }
 }
