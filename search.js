@@ -108,11 +108,11 @@ class Search{
                 
                 if(token.indexOf("=^") > 0){
                   let [p, v] = token.split("=^")
-                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().startsWith(v))
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().startsWith(v.toLowerCase()))
 
                 } else if(token.endsWith("^")){
                   let [p, v] = token.slice(0, -1).split("=")
-                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().endsWith(v))
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "").toLowerCase().endsWith(v.toLowerCase()))
 
                 } else if(token.indexOf("=") > 0){
                   let [p, v] = token.split("=")
@@ -123,7 +123,7 @@ class Search{
                   if(global.EntityStorage.indices.propcontains)
                     res = global.EntityStorage.indices.propcontains.word2Ids[v]
                   else
-                    return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (""+(global.EntityStorage.props.getProps(id)[p] || "")).toLowerCase().indexOf(v)>=0)
+                    return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (""+(global.EntityStorage.props.getProps(id)[p] || "")).toLowerCase().indexOf(v.toLowerCase())>=0)
 
                 } else if(token.indexOf("<") > 0){
                   let [p, v] = token.split("<")
