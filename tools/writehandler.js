@@ -28,6 +28,9 @@ class WriteHandler{
         
         while(this.locked)
             await this.lockPromise;
+
+        if(this.queue.length < 1)
+          return;
             
         this.lockPromise = new Promise(async (resolve) => {
             this.locked = true;
@@ -52,6 +55,10 @@ class WriteHandler{
             this.locked = false;
             resolve();
         })
+    }
+
+    async flush(){
+      await this.doWriteQueue();
     }
 }
 

@@ -185,20 +185,21 @@ class Entity{
     }
 
     static async init(dataPath){
-        await new EntityStorage().init(dataPath);
+      let es = new EntityStorage()
+      await es.init(dataPath)
 
-        return {
-            uiPath: path.join(__dirname, "www"),
-            uiAPI: (req, res, next) => {
-                let query = req.params.query;
-                
-                let result = Entity.search(query)
-                res.writeHead(200, {'Content-Type':'application/json'});
-                res.end(JSON.stringify(result.map(e => {
-                    return {id: e._id, props: e.props, tags: e.tags, rels: e.rels}
-                })));
-            }
-        }
+      return {
+          uiPath: path.join(__dirname, "www"),
+          uiAPI: (req, res, next) => {
+              let query = req.params.query;
+              
+              let result = Entity.search(query)
+              res.writeHead(200, {'Content-Type':'application/json'});
+              res.end(JSON.stringify(result.map(e => {
+                  return {id: e._id, props: e.props, tags: e.tags, rels: e.rels}
+              })));
+          }
+      }
     }
 }
 
@@ -219,11 +220,13 @@ class EntityStorage{
 
         await fs.promises.mkdir(dataPath, { recursive: true });
 
-        this.tags = await new Tags(path.resolve(dataPath, "tags.data")).init();
-        this.rels = await new Rels(path.resolve(dataPath, "rels.data")).init();
-        this.props = await new Props(path.resolve(dataPath, "props.data")).init();
-        this.blobs = await new Blobs(dataPath).init();
-        this.search = await new Search().init();
+        [this.search, this.tags, this.rels, this.props, this.blobs] = await Promise.all([
+          new Search().init(),
+          new Tags(path.resolve(dataPath, "tags.data")).init(),
+          new Rels(path.resolve(dataPath, "rels.data")).init(),
+          new Props(path.resolve(dataPath, "props.data")).init(),
+          new Blobs(dataPath).init()
+        ])
         
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1
         global.EntityStorage = this;

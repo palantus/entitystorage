@@ -1,5 +1,6 @@
 let WriteHandler = require("../tools/writehandler.js");
 let ReadHandler = require("../tools/readhandler.js");
+const optimize = require("../tools/optimizer.js")
 
 class Tags{
     
@@ -24,6 +25,7 @@ class Tags{
 
     async readDB(){
         let rd = new ReadHandler();
+        let numDeletes = 0;
         await rd.read(this.dbPath, (data) => {
             let id = data.id
             let tag = data.tag
@@ -49,9 +51,13 @@ class Tags{
 
                 if(this.id2tags[id].length < 1)
                     this.idSet.delete(id)
+
+                numDeletes++;
             }
         })
         
+        if(numDeletes / this.idSet.size > 0.2)
+          await optimize(this.dbPath, this.idSet)
     }
 
     getMaxId(){
