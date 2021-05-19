@@ -63,7 +63,6 @@ class Tags{
     })
     
     if(numDeletes / numInserts > 0.2){
-      console.log(this.id2tags)
       await optimize(this.dbPath, this.idSet, ((id) => (this.id2tags[id]?.map(tag => ({o: 1, id, tag})) || [])).bind(this))
     }
   }

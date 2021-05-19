@@ -6,7 +6,7 @@ const ReadHandler = require("../tools/readhandler.js");
 module.exports = async function(sourceDB, idSet, idToData){
   let folder = path.dirname(sourceDB).split(path.sep).pop()
   let files = fs.readdirSync(folder)
-  await new Promise(r => fs.rename(sourceDB, `${sourceDB}_${files.length}`, (err) => {console.log(err); r()}));
+  await new Promise(r => fs.rename(sourceDB, `${sourceDB}_${files.length}`, (err) => {/*console.log(err); */r()}));
   let exists = await new Promise(r => fs.access(sourceDB, err => r(err ? false : true)))
 
   if(exists)
@@ -15,7 +15,6 @@ module.exports = async function(sourceDB, idSet, idToData){
   let writeHandler = new WriteHandler(sourceDB);
   for(let id of idSet.values()){
     for(let data of idToData(id)){
-      console.log(data)
       await writeHandler.write(data)
     }
   }
