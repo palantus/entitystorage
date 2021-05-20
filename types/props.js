@@ -52,6 +52,7 @@ class Props{
     })
     
     if(numDeletes / numInserts > 0.2){
+      console.log(`Props has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
       await optimize(this.dbPath, this.idSet, ((id) => (Object.entries(this.id2Props[id]||{})?.map(([prop, value]) => ({o: 1, id, prop, value})) || [])).bind(this))
     }
   }
