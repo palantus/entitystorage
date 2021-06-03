@@ -63,19 +63,26 @@ class Relations{
         numInserts++;
       } else if(this.id2Ids[id1] !== undefined) {
         this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
-        if(this.id2Ids[id1][rel].length == 0) 
+        if(this.id2Ids[id1][rel].length == 0) {
           delete this.id2Ids[id1][rel];
+        }
         
-        if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0)
+        if(Object.keys(this.id2Ids[id1]).length === 0) {
+          delete this.id2Ids[id1];
+          this.id2IdsNoRel[id1] = [];
+        } else if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0){
           this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
+        }
+        
         if(this.id2IdsNoRel[id1].length == 0) 
           delete this.id2IdsNoRel[id1];
         
         this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
-        if(this.id2IdsReverse[id2][rel].length == 0) 
+        if(this.id2IdsReverse[id2][rel].length == 0) {
           delete this.id2IdsReverse[id2][rel];
-        if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
-          delete this.id2IdsReverse[id2];
+          if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
+            delete this.id2IdsReverse[id2];
+        }
         
         if(!this.id2IdsReverse[id2]){
           delete this.id2IdsReverseNoRel[id2];
@@ -166,19 +173,27 @@ class Relations{
       return;
     
     this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
-    if(this.id2Ids[id1][rel].length == 0) 
+    if(this.id2Ids[id1][rel].length == 0){
       delete this.id2Ids[id1][rel];
+      if(Object.keys(this.id2Ids[id1]).length === 0) 
+        delete this.id2Ids[id1];
+    }
     
-    if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0)
+    if(Object.keys(this.id2Ids[id1]).length === 0) {
+      delete this.id2Ids[id1];
+      this.id2IdsNoRel[id1] = [];
+    } else if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0){
       this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
+    }
     if(this.id2IdsNoRel[id1].length == 0) 
       delete this.id2IdsNoRel[id1];
     
     this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
-    if(this.id2IdsReverse[id2][rel].length == 0) 
+    if(this.id2IdsReverse[id2][rel].length == 0) {
       delete this.id2IdsReverse[id2][rel];
-    if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
-      delete this.id2IdsReverse[id2];
+      if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
+        delete this.id2IdsReverse[id2];
+    }
     
     if(!this.id2IdsReverse[id2]){
       delete this.id2IdsReverseNoRel[id2];
