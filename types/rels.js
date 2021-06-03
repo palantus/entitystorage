@@ -175,8 +175,6 @@ class Relations{
     this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
     if(this.id2Ids[id1][rel].length == 0){
       delete this.id2Ids[id1][rel];
-      if(Object.keys(this.id2Ids[id1]).length === 0) 
-        delete this.id2Ids[id1];
     }
     
     if(Object.keys(this.id2Ids[id1]).length === 0) {
