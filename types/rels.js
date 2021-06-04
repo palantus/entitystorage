@@ -102,7 +102,7 @@ class Relations{
       }
     })
 
-    if(numDeletes / numInserts > 0.2){
+    if(numDeletes / numInserts > 0.2 && numDeletes > 1000){
       console.log(`Relations has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
       await optimize(this.dbPath, this.idSet, id1 => Object.entries(this.id2Ids[id1]||{}).reduce((res, cur) => {
         let [rel, ids] = cur;

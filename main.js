@@ -11,8 +11,21 @@ let Search = require("./search")
 class Entity{
     
     constructor(...args){
+        
+        let isExisting = false;
+        if(args && args[0] instanceof Entity){
+          this._id = args[0]._id
+          isExisting = true;
+        }
+        else if(args && args[0] == "_internal_init_"){
+          isExisting = true;
+        } else {
+          this._id = global.EntityStorage.nextId
+        }
+        /*
         if(!args || args.length < 1 || args[0] != "_internal_init_")
           this._id = global.EntityStorage.nextId
+        */
         let p = new Proxy(this, {
             get(target, name, receiver) {
                 if(name in target) {
@@ -35,7 +48,8 @@ class Entity{
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
                         rels[key] = rels[key].map(id => {
-                            let e = new target.constructor('_internal_init_'); 
+                            //let e = new target.constructor('_internal_init_'); 
+                            let e = new Entity('_internal_init_'); 
                             e._id = id;
                             return e
                         })
@@ -45,7 +59,8 @@ class Entity{
                     let rels = {...global.EntityStorage.rels.getRelationsReverse(target._id)}
                     Object.keys(rels).map((key, index) => {
                         rels[key] = rels[key].map(id => {
-                            let e = new target.constructor('_internal_init_'); 
+                            //let e = new target.constructor('_internal_init_'); 
+                            let e = new Entity('_internal_init_'); 
                             e._id = id;
                             return e
                         })
@@ -55,7 +70,8 @@ class Entity{
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
                         if(rels[key][0]){
-                            let e = new target.constructor('_internal_init_'); 
+                            //let e = new target.constructor('_internal_init_'); 
+                            let e = new Entity('_internal_init_'); 
                             e._id = rels[key][0];
                             rels[key] = e
                         } else {
@@ -80,7 +96,8 @@ class Entity{
             }
         });
         
-        if(typeof p.initNew === "function" && (args.length != 1 || args[0] !== '_internal_init_')){
+        //if(typeof p.initNew === "function" && (args.length != 1 || args[0] !== '_internal_init_')){
+        if(typeof p.initNew === "function" && !isExisting){
             p.initNew.call(p, ...args)
         }
         return p;

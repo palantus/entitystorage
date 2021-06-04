@@ -84,7 +84,16 @@ a.moveToNextRelease();
 
 // Do any default Entity methods, like setting properties directly (will be stored in database):
 a.documentation = "My documentation"
-    
+```
+
+It is also possible to override eg. delete, to remove any other entities for cleaning up:
+
+```javascript
+class My extends Entity{
+  delete(){
+    this.rels.logentry.forEach(e => e.delete());
+    super.delete()
+  }
 ```
 
 ## Searching
@@ -147,6 +156,8 @@ Assignment.search("tag:assignment").filter(a => a.related.solvedin.release == 'R
 ```
 
 Using .relations (or .rels), you get an object with relations in arrays (doesn't assume only one).
+
+Note that by stepping through relations, the type is Entity and not any custom (as it would be impossible to infer it). You can however always get a typed version by giving it to the constructor (new MyType(entity)).
 
 ## Indices
 
