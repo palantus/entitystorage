@@ -93,7 +93,7 @@ class Search{
                 let id = parseInt(token);
                 if(fixedStartSet)
                   return fixedStartSet.indexOf(id) >= 0 ? [id] : []
-                return [id]
+                return this.getAllIds().includes(id) ? [id] : []
 
               case "*":
                 return fixedStartSet || this.getAllIds()

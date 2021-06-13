@@ -213,7 +213,13 @@ class Entity{
               let result = Entity.search(query)
               res.writeHead(200, {'Content-Type':'application/json'});
               res.end(JSON.stringify(result.map(e => {
-                  return {id: e._id, props: e.props, tags: e.tags, rels: e.rels}
+                  return {
+                    id: e._id, 
+                    props: e.props, 
+                    tags: e.tags, 
+                    rels: e.rels, 
+                    relsrev: req.query?.includeReverse == "true" ? e.relsrev : undefined
+                  }
               })));
           }
       }

@@ -16,7 +16,9 @@
 </head>
 <body>
     <div id="searchcontainer">
+
         <input type="text" id="query" placeholder="Enter query and hit enter to search"/>
+        Show reverse relations: <input id="showreverse" type="checkbox"></input>
     </div>
     <div id="resultcontainer">
         <table id="result" style="display:none">
@@ -26,6 +28,7 @@
                     <th>Properties</th>
                     <th>Tags</th>
                     <th>Relations</th>
+                    <th>Relations (rev.)</th>
                 </tr>
             </thead>
             <tbody>
