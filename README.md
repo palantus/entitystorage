@@ -157,7 +157,7 @@ Assignment.search("tag:assignment").filter(a => a.related.solvedin.release == 'R
 
 Using .relations (or .rels), you get an object with relations in arrays (doesn't assume only one).
 
-Note that by stepping through relations, the type is Entity and not any custom (as it would be impossible to infer it). You can however always get a typed version by giving it to the constructor (new MyType(entity)).
+Note that by stepping through relations, the type is Entity and not any custom (as it would be impossible to infer it). You can however always get a typed version by calling .from like this: `MyType.from(entity)`.
 
 ## Indices
 
@@ -235,6 +235,7 @@ Entity static methods:
  - `find(filter)`: Search for filter "filter" and return first result
  - `findOrCreate(filter)`: same as find, but returns a new Entity if none is found
  - `search(filter, args)`: Search for filter and return all results as an array
+ - `from(entity)`: Cast a generic Entity to any custom type. Eg.: `MyType.from(entity)`.
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
 
 
