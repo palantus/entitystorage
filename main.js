@@ -13,11 +13,7 @@ class Entity{
     constructor(...args){
         
         let isExisting = false;
-        if(args && args[0] instanceof Entity){
-          this._id = args[0]._id
-          isExisting = true;
-        }
-        else if(args && args[0] == "_internal_init_"){
+        if(args && args[0] == "_internal_init_"){
           isExisting = true;
         } else {
           this._id = global.EntityStorage.nextId
@@ -199,6 +195,13 @@ class Entity{
                 }
             }
         })
+    }
+
+    static from(otherEntity){
+      if(!otherEntity || !otherEntity._id) return null;
+      let typedEntity = new this('_internal_init_'); 
+      typedEntity._id = otherEntity._id; 
+      return typedEntity;
     }
 
     static async init(dataPath){
