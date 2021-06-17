@@ -110,7 +110,8 @@ class Entity{
 
     rel(related, rel){
         if(typeof related !== "object" || !(related instanceof Entity))
-            throw "You can only relate entities to other instances of the Entity class"
+            return this;
+
         global.EntityStorage.rels.add(this._id, related._id, rel)
         return this;
     }
@@ -137,7 +138,8 @@ class Entity{
 
     removeRel(related, rel){
         if(typeof related !== "object" || !(related instanceof Entity))
-            throw "You can only relate entities to other instances of the Entity class"
+            return this;
+            
         global.EntityStorage.rels.remove(this._id, related._id, rel)
         return this;
     }
