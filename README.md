@@ -227,6 +227,7 @@ Entity instance methods:
  - `delete()`: delete all information about the entity
  - `setBlob`: set blob. Can be either a stream, a buffer or a string.
  - `rels`: get all relations (object like `{"rel1": [e1, e2], "rel2": [e1]}`)
+ - `relsrev`: get all relations in the other direction
  - `props`: get all properties as an object (also accessible using .propertyname directly on entity)
  - `tags`: get all tags (array)
  - `blob`: get blob (stream)
