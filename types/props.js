@@ -27,8 +27,13 @@ class Props{
     let numDeletes = 0, numInserts = 0;
     let rd = new ReadHandler();
     await rd.read(this.dbPath, (data) => {
+      let pv;
+      let oldPropCasing = this.id2Props[data.id] === undefined ? data.prop
+                        : this.id2Props[data.id][data.prop] !== undefined ? data.prop
+                        : Object.keys(this.id2Props[data.id]).find(k => k.toLowerCase() == data.prop.toLowerCase()) || data.prop
+                        
       if(data.o == 1){
-        let pv = (data.prop + '__' + (typeof data.value === "string" ? data.value.substr(0, 100) : ""+data.value)).toLowerCase();
+        pv = (data.prop + '__' + (typeof data.value === "string" ? data.value.substr(0, 100) : ""+data.value)).toLowerCase();
         if(this.prop2Id[pv] === undefined)
           this.prop2Id[pv] = [data.id]
         else if(this.prop2Id[pv].indexOf(data.id) < 0)
@@ -37,18 +42,19 @@ class Props{
         if(this.id2Props[data.id] === undefined){
           this.id2Props[data.id] = {}
         }
+        if(oldPropCasing !== data.prop){
+          delete this.id2Props[data.id][oldPropCasing]
+        }
         this.id2Props[data.id][data.prop] = data.value;
         this.idSet.add(data.id)
         
         numInserts++;
       } else {
-        let oldCasing = this.id2Props[data.id] === undefined ? data.prop
-                      : this.id2Props[data.id][data.prop] !== undefined ? data.prop
-                      : Object.keys(this.id2Props[data.id]).find(k => k.toLowerCase() == data.prop.toLowerCase()) || data.prop
-        let value = this.id2Props[data.id][oldCasing]
-        let pv = (data.prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
+        
+        let value = this.id2Props[data.id][oldPropCasing]
+        pv = (data.prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
         this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(data.id), 1);
-        delete this.id2Props[data.id][oldCasing];
+        delete this.id2Props[data.id][oldPropCasing];
         if(Object.entries(this.id2Props[data.id]).length === 0)
           this.idSet.delete(data.id)
         numDeletes++;
