@@ -27,8 +27,8 @@ class Props{
     let numDeletes = 0, numInserts = 0;
     let rd = new ReadHandler();
     await rd.read(this.dbPath, (data) => {
-      let pv = (data.prop + '__' + (typeof data.value === "string" ? data.value.substr(0, 100) : ""+data.value)).toLowerCase();
       if(data.o == 1){
+        let pv = (data.prop + '__' + (typeof data.value === "string" ? data.value.substr(0, 100) : ""+data.value)).toLowerCase();
         if(this.prop2Id[pv] === undefined)
           this.prop2Id[pv] = [data.id]
         else if(this.prop2Id[pv].indexOf(data.id) < 0)
@@ -41,10 +41,14 @@ class Props{
         this.idSet.add(data.id)
         
         numInserts++;
-      } else if(this.prop2Id[pv] !== undefined) {
+      } else {
+        let oldCasing = this.id2Props[data.id] === undefined ? data.prop
+                      : this.id2Props[data.id][data.prop] !== undefined ? data.prop
+                      : Object.keys(this.id2Props[data.id]).find(k => k.toLowerCase() == data.prop.toLowerCase()) || data.prop
+        let value = this.id2Props[data.id][oldCasing]
+        let pv = (data.prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
         this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(data.id), 1);
-        delete this.id2Props[data.id][data.prop];
-        
+        delete this.id2Props[data.id][oldCasing];
         if(Object.entries(this.id2Props[data.id]).length === 0)
           this.idSet.delete(data.id)
         numDeletes++;
@@ -68,15 +72,21 @@ class Props{
   setProp(id, prop, value){
     value = value !== undefined ? value : ""
     id = parseInt(id)
-    
+
     if(this.id2Props[id] === undefined){
       this.id2Props[id] = {}
-    } else if(this.id2Props[id][prop] == value){
+    }
+
+    let oldCasing = this.id2Props[id][prop] !== undefined ? prop
+                  : Object.keys(this.id2Props[id]).find(k => k.toLowerCase() == prop.toLowerCase()) || prop
+
+    // If the casing is the same and old value is the same as the new => ignore
+    if(oldCasing === prop && this.id2Props[id][prop] == value){
       return;
     }
     
-    if(this.id2Props[id][prop] !== undefined){
-      this.removeProp(id, prop)
+    if(this.id2Props[id][oldCasing] !== undefined){
+      this.removeProp(id, oldCasing)
     }
     
     this.id2Props[id][prop] = value;
@@ -97,7 +107,7 @@ class Props{
     let value = this.id2Props[id][prop]
     
     if(value === undefined)
-    return;
+      return;
     
     delete this.id2Props[id][prop];
     if(Object.entries(this.id2Props[id]).length === 0)
@@ -111,7 +121,7 @@ class Props{
       }
     }
     
-    this.write({o: 0, id, prop, value})
+    this.write({o: 0, id, prop})
   }
   
   getIdsByProp(prop, value){

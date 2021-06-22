@@ -125,8 +125,10 @@ class Relations{
     id1 = parseInt(id1)
     id2 = parseInt(id2)
     
-    if(!rel)
-    rel = "" //No rel
+    if(!rel || typeof rel !== "string")
+      rel = "" //No rel
+
+    rel = rel.toLowerCase();
     
     if(this.id2Ids[id1] !== undefined && this.id2Ids[id1][rel] !== undefined && this.id2Ids[id1][rel].indexOf(id2) >= 0)
       return;
@@ -167,7 +169,7 @@ class Relations{
     id1 = parseInt(id1)
     id2 = parseInt(id2)
     if(!rel)
-    rel = "" //No rel
+      rel = "" //No rel
     
     if(this.id2Ids[id1] === undefined || this.id2Ids[id1][rel] === undefined || this.id2Ids[id1][rel].indexOf(id2) < 0)
       return;
