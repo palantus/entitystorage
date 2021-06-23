@@ -32,7 +32,7 @@ class WriteHandler{
         if(this.queue.length < 1)
           return;
             
-        this.lockPromise = new Promise(async (resolve) => {
+        this.lockPromise = new Promise(async (resolveLock) => {
             this.locked = true;
 
             let buffers = this.queue.map(o => BSON.serialize(o));
@@ -50,10 +50,20 @@ class WriteHandler{
                 curPos += b.length;
             }
 
-            await new Promise(resolve => fs.appendFile(this.filename, buffer, err => err ? console.log(err) : resolve()))
+            let successful = false;
+            while(!successful){
+              try{
+                await new Promise((resolve, reject) => fs.appendFile(this.filename, buffer, err => err ? reject(err) : resolve()))
+                successful = true;
+              } catch(err){
+                console.log(err)
+                console.log(`Catched an error writing ${this.filename}. Retrying...`)
+                await new Promise(r => setTimeout(r, 100));
+              }
+            }            
 
             this.locked = false;
-            resolve();
+            resolveLock();
         })
     }
 
