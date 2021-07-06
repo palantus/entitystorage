@@ -8,7 +8,7 @@ const path = require('path')
 
 class Blob{
     
-    constructor(dbPath){
+    constructor(dbPath, history){
         this.idSet = new Set();
         this.blobs = {}
         this.files = []
@@ -19,6 +19,7 @@ class Blob{
         this.isWriting = false;
         this.writingPromise = null;
         this.cacheWhenWriting = {}
+        this.history = history
     }
 
     async init(){
@@ -115,6 +116,7 @@ class Blob{
           delete this.cacheWhenWriting[id]
         })
         await this.lockPromise
+        this.history?.addEntry(id, "blob", {operation: "set"})
     }
 
     delete(id){
@@ -125,6 +127,7 @@ class Blob{
             delete this.blobs[id]
         }
         this.idSet.delete(id)
+        this.history?.addEntry(id, "blob", {operation: "remove"})
     }
         
     getFreeChunk(size, preferFile){

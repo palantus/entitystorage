@@ -284,3 +284,18 @@ let {uiPath, uiAPI} = await Entity.init("./data");
 mscp.use("/db/api/:query", uiAPI)
 mscp.static("/db", uiPath)
 ```
+
+## History
+
+EntityStorage can provide a full history/changelog over changes of an Entity. It is enabled on a entity-by-entity basis by calling `.enableHistory()` on it. After doing that, the history is available by calling `.history` on an entity.
+
+If you want, you can add custom entries using `.addHistoryEntry(data, timestamp)`. Timestamp is optional and data can be any javascript object/array/value. Custom entries will have `type: "custom"` when extracted.
+
+History can be cleared using `clearHistory()`.
+
+When searching, you can find entities which was created and/or updated in a period.
+
+Examples:
+ - `created:>2021-10`: Created in october 2021 or after
+ - `created:2021-10`: Created in october 2021
+ - `updated:<2021`: Updated in 2021 or before

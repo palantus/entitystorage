@@ -153,6 +153,28 @@ class Search{
                   res = global.EntityStorage.rels.getRelated(parseInt(token))
                 return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
         
+              case "created":
+                if(token[0] == "<"){
+                  let v = token.slice(1)
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getFirstEntry(id)?.ts || "9999") <= v)
+                } else if(token[0] == ">"){
+                  let v = token.slice(1)
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getFirstEntry(id)?.ts || "0000") >= v)
+                } else {
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getFirstEntry(id)?.ts || "0000").startsWith(token))
+                }
+
+              case "updated":
+                if(token[0] == "<"){
+                  let v = token.slice(1)
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getLastEntry(id)?.ts || "9999") <= v)
+                } else if(token[0] == ">"){
+                  let v = token.slice(1)
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getLastEntry(id)?.ts || "0000") >= v)
+                } else {
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.history.getLastEntry(id)?.ts || "0000").startsWith(token))
+                }
+
               default:
                 return []
             }

@@ -4,11 +4,12 @@ const optimize = require("../tools/optimizer.js")
 
 class Tags{
   
-  constructor(dbPath){
+  constructor(dbPath, history){
     this.tag2ids = {}
     this.id2tags = {}
     this.idSet = new Set();
     this.dbPath = dbPath || "tags.data"
+    this.history = history
   }
   
   async init(){
@@ -96,6 +97,7 @@ class Tags{
     
     this.idSet.add(id)
     
+    this.history?.addEntry(id, "tag", {operation: "add", tag})
     this.write({o: 1, id, tag})
   }
   
@@ -118,6 +120,7 @@ class Tags{
       delete this.tag2ids[tagLower];
     }
     
+    this.history?.addEntry(id, "tag", {operation: "remove", tag})
     this.write({o: 0, id, tag})
   }
   

@@ -4,11 +4,12 @@ const optimize = require("../tools/optimizer.js")
 
 class Props{
   
-  constructor(dbPath){
+  constructor(dbPath, history){
     this.prop2Id = {}
     this.id2Props = {}
     this.idSet = new Set();
     this.dbPath = dbPath || "props.data"
+    this.history = history
   }
   
   async init(){
@@ -92,7 +93,7 @@ class Props{
     }
     
     if(this.id2Props[id][oldCasing] !== undefined){
-      this.removeProp(id, oldCasing)
+      this.removeProp(id, oldCasing, true)
     }
     
     this.id2Props[id][prop] = value;
@@ -105,10 +106,11 @@ class Props{
       this.prop2Id[pv].push(id)
     }
     
+    this.history?.addEntry(id, "prop", {operation: "set", prop, value})
     this.write({o: 1, id, prop, value})
   }
   
-  removeProp(id, prop){
+  removeProp(id, prop, ignoreHistory){
     id = parseInt(id)
     let value = this.id2Props[id][prop]
     
@@ -127,6 +129,9 @@ class Props{
       }
     }
     
+    if(ignoreHistory !== true){
+      this.history?.addEntry(id, "prop", {operation: "remove", prop})
+    }
     this.write({o: 0, id, prop})
   }
   

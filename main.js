@@ -6,6 +6,7 @@ let Props = require("./types/props")
 let Rels = require("./types/rels")
 let Tags = require("./types/tags")
 let Blobs = require("./types/blobs")
+let History = require("./types/history")
 let Search = require("./search")
 
 class Entity{
@@ -40,6 +41,8 @@ class Entity{
                     return global.EntityStorage.props.getProps(target._id);
                 } else if(name == "blob") {
                     return global.EntityStorage.blobs.get(target._id);
+                } else if(name == "history") {
+                    return global.EntityStorage.history.getEntries(target._id);
                 } else if(name == "relations" || name == "rels") {
                     let rels = {...global.EntityStorage.rels.getRelations(target._id)}
                     Object.keys(rels).map((key, index) => {
@@ -171,6 +174,23 @@ class Entity{
         })
 
         global.EntityStorage.blobs.delete(this._id)
+        global.EntityStorage.history.delete(this._id)
+    }
+
+    enableHistory(){
+      global.EntityStorage.history.enable(this._id)
+      return this;
+    }
+
+    clearHistory(){
+      global.EntityStorage.history.delete(this._id)
+      return this;
+    }
+
+    addHistoryEntry(data, timestamp){
+      if(timestamp && timestamp.length == 19) timestamp += ".000"
+      if(timestamp.length != 23) throw "Invalid custom timestamp for history entry"
+      global.EntityStorage.history.addEntry(this._id, "custom", data, false, timestamp)
     }
     
     static find(filter){
@@ -247,13 +267,15 @@ class EntityStorage{
         dataPath = dataPath ? dataPath : "./";
 
         await fs.promises.mkdir(dataPath, { recursive: true });
+        let history = new History(path.resolve(dataPath, "history.data"));
 
-        [this.search, this.tags, this.rels, this.props, this.blobs] = await Promise.all([
+        [this.search, this.tags, this.rels, this.props, this.history, this.blobs] = await Promise.all([
           new Search().init(),
-          new Tags(path.resolve(dataPath, "tags.data")).init(),
-          new Rels(path.resolve(dataPath, "rels.data")).init(),
-          new Props(path.resolve(dataPath, "props.data")).init(),
-          new Blobs(dataPath).init()
+          new Tags(path.resolve(dataPath, "tags.data"), history).init(),
+          new Rels(path.resolve(dataPath, "rels.data"), history).init(),
+          new Props(path.resolve(dataPath, "props.data"), history).init(),
+          history.init(),
+          new Blobs(dataPath, history).init()
         ])
         
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1

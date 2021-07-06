@@ -4,13 +4,14 @@ const optimize = require("../tools/optimizer.js");
 
 class Relations{
   
-  constructor(dbPath){
+  constructor(dbPath, history){
     this.id2Ids = {}
     this.id2IdsNoRel = {}
     this.id2IdsReverse = {}
     this.id2IdsReverseNoRel = {}
     this.idSet = new Set();
     this.dbPath = dbPath || "rels.data"
+    this.history = history
   }
   
   async init(){
@@ -162,6 +163,8 @@ class Relations{
     this.idSet.add(id1)
     this.idSet.add(id2)
     
+    this.history?.addEntry(id1, "rel", {operation: "add", rel, id1, id2})
+    this.history?.addEntry(id2, "rel", {operation: "add-rev", rel, id1, id2})
     this.write({o: 1, id1, id2, rel})
   }
   
@@ -209,6 +212,7 @@ class Relations{
     if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
       this.idSet.delete(id2)
     
+    this.history?.addEntry(id, "rel", {operation: "remove", rel, id1, id2})
     this.write({o: 0, id1, id2, rel})
   }
   
