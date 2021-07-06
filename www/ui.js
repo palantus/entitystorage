@@ -37,7 +37,7 @@ async function doSearch(query, showReverse){
         let row = $("<tr/>")
 
         row.append(`<td>${e.id}</td>`)
-        row.append(`<td>${Object.keys(e.props).map(p => typeof e.props[p] === "object" ? `${p} = ${JSON.stringify(e.props[p])}` : `<a href="?query=prop:%22${p}=${e.props[p]}%22">${p} = ${e.props[p]}</a>`).join("<br/>")}</td>`)
+        row.append(`<td>${Object.keys(e.props).map(p => typeof e.props[p] === "object" ? `${p} = ${JSON.stringify(e.props[p])}` : e.props[p].length > 100 ? `${p} = ${e.props[p]}` : `<a href="?query=prop:%22${p}=${e.props[p]}%22">${p} = ${e.props[p]}</a>`).join("<br/>")}</td>`)
         row.append(`<td>${e.tags.map(t => `<a href="?query=tag:%22${t}%22">${t}</a>`).join(", ")}</td>`)
         row.append(`<td>${Object.keys(e.rels).map(r => `${r}: ${e.rels[r].map(ri => `<a href="?query=id:${ri._id}">${ri._id}</a>`).join(", ")}`).join("<br/>")}</td>`)
         if(showReverse)
