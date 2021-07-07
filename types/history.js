@@ -35,7 +35,7 @@ class History{
         numInserts++;
       } else {
         delete this.id2History[data.id];
-        this.idSet.remove(data.id)
+        this.idSet.delete(data.id)
         numDeletes++;
       }
     })
@@ -88,7 +88,7 @@ class History{
 
   delete(id){
     delete this.id2History[id];
-    this.idSet.remove(id)
+    this.idSet.delete(id)
     this.write({o: 0, id})
   }
 
