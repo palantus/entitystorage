@@ -212,7 +212,8 @@ class Relations{
     if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
       this.idSet.delete(id2)
     
-    this.history?.addEntry(id, "rel", {operation: "remove", rel, id1, id2})
+    this.history?.addEntry(id1, "rel", {operation: "remove", rel, id1, id2})
+    this.history?.addEntry(id2, "rel", {operation: "remove-rev", rel, id1, id2})
     this.write({o: 0, id1, id2, rel})
   }
   
