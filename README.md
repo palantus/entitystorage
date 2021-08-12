@@ -218,7 +218,7 @@ Entity.search("tag:post").removeTag("migrated").removeRel(entityOld, "migrated")
 ## API
 
 Entity instance methods:
- - `rel(e2, rel)`: Create a relation to e2 (Entity) with type rel (string)
+ - `rel(e2, rel, replace)`: Create a relation to e2 (Entity) with type rel (string). Set `replace` to true to replace existing relation. If `replace` is true and a non-entity (eg. null or undefined) is passed as `e2`, the existing relation is removed.
  - `tag(tag)`: Add tag "tag" to entity. Can be an array. null and undefined are ignored.
  - `prop(name, value)`: Set property "name" to "value".
  - `removeRel(e2, rel)`: Remove relation to e2 (Entity) of type rel (string)

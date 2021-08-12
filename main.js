@@ -111,9 +111,17 @@ class Entity{
         return this;
     }
 
-    rel(related, rel){
-        if(typeof related !== "object" || !(related instanceof Entity))
-            return this;
+    rel(related, rel, replaceExisting){
+        if(typeof related !== "object" || !(related instanceof Entity)){
+          if(replaceExisting){
+            this.removeRel(this.related?.[rel], rel)
+          }
+          return this;
+        }
+
+        if(replaceExisting && this.related?.[rel]?._id != related._id){
+          this.removeRel(this.related?.[rel], rel)
+        }
 
         global.EntityStorage.rels.add(this._id, related._id, rel)
         return this;
