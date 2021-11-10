@@ -102,11 +102,17 @@ class Entity{
         return p;
     }
 
-    tag(tag){
+    tag(tag, replaceExisting){
         if(tag === undefined || tag === null) 
             return this; // To allow for .tag(addTag ? "tag" : null)
-        if(Array.isArray(tag))
+        if(Array.isArray(tag)){
+            if(replaceExisting){
+              for(let t of this.tags.filter(t => !tag.includes(t))){
+                this.removeTag(t)
+              }
+            }
             return tag.reduce((ret, cur) => this.tag(cur), this)
+        }
         global.EntityStorage.tags.addTag(this._id, tag)
         return this;
     }
