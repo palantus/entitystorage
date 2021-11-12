@@ -53,6 +53,22 @@ class Blob {
 
     this.cacheWhenWriting[id] = data;
 
+    if(data instanceof stream.Readable){
+      // Node 16 version:
+      /*
+      let fd = await fs.open(filename, 'w')
+      const writable = fd.createWriteStream();
+      data.pipe(writable);
+      await new Promise(resolve => data.on("end", resolve))
+      */
+      data = await new Promise((resolve, reject) => {
+        const _buf = [];
+        data.on("data", (chunk) => _buf.push(chunk));
+        data.on("end", () => resolve(Buffer.concat(_buf)));
+        data.on("error", (err) => reject(err));
+      });
+    } 
+
     if (Buffer.isBuffer(data) || (typeof data.on === 'function' && typeof data.read === 'function')) {
       let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
       let fd = await fs.open(filename, 'w')
