@@ -1,15 +1,18 @@
-"use strict"
+import path from 'path';
+import fs from 'fs';
+import Props from './types/props.js'
+import Rels from './types/rels.js'
+import Tags from './types/tags.js'
+import Blobs from './types/blobs.js'
+import History from './types/history.js'
+import NumberSeq from './types/numberseq.js'
+import Search from './search.js'
 
-let path = require("path")
-let fs = require("fs")
-let Props = require("./types/props")
-let Rels = require("./types/rels")
-let Tags = require("./types/tags")
-let Blobs = require("./types/blobs")
-let History = require("./types/history")
-let Search = require("./search")
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-class Entity{
+export default class Entity{
     
     constructor(...args){
         
@@ -265,7 +268,7 @@ class Entity{
     }
 }
 
-class EntityStorage{
+export class EntityStorage{
     
     get nextId(){
         let ret = this._nextId;
@@ -283,13 +286,14 @@ class EntityStorage{
         await fs.promises.mkdir(dataPath, { recursive: true });
         let history = new History(path.resolve(dataPath, "history.data"));
 
-        [this.search, this.tags, this.rels, this.props, this.history, this.blobs] = await Promise.all([
+        [this.search, this.tags, this.rels, this.props, this.history, this.blobs, this.numberSeq] = await Promise.all([
           new Search().init(),
           new Tags(path.resolve(dataPath, "tags.data"), history).init(),
           new Rels(path.resolve(dataPath, "rels.data"), history).init(),
           new Props(path.resolve(dataPath, "props.data"), history).init(),
           history.init(),
-          new Blobs(dataPath, history).init()
+          new Blobs(dataPath, history).init(),
+          new NumberSeq(path.resolve(dataPath, "numberseq.data"), history).init()
         ])
         
         this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1
@@ -331,4 +335,4 @@ Entity.prototype.toString = function(){
     return this._id;
 }
 
-module.exports = Entity
+export let nextNum = (...args) => global.EntityStorage.numberSeq.num.apply(global.EntityStorage.numberSeq, args)

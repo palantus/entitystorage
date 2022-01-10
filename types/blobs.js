@@ -1,13 +1,11 @@
-"use strict"
+import WriteHandler from "../tools/writehandler.js";
+import ReadHandler from "../tools/readhandler.js";
+import stream from 'stream';
+import {promises as fs} from 'fs'
+import fs2 from 'fs';
+import path from 'path'
 
-const WriteHandler = require("../tools/writehandler.js");
-const ReadHandler = require("../tools/readhandler.js");
-const stream = require('stream');
-const fs = require('fs').promises;
-const fs2 = require('fs');
-const path = require('path')
-
-class Blob {
+export default class Blob {
 
   constructor(dbPath, history) {
     this.idSet = new Set();
@@ -124,5 +122,3 @@ class Blob {
     return this.idSet.values()
   }
 }
-
-module.exports = Blob

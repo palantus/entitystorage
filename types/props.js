@@ -1,8 +1,8 @@
-let WriteHandler = require("../tools/writehandler.js");
-let ReadHandler = require("../tools/readhandler.js");
-const optimize = require("../tools/optimizer.js")
+import WriteHandler from "../tools/writehandler.js"
+import ReadHandler from "../tools/readhandler.js"
+import optimize from "../tools/optimizer.js"
 
-class Props{
+export default class Props{
   
   constructor(dbPath, history){
     this.prop2Id = {}
@@ -144,5 +144,3 @@ class Props{
     return this.id2Props[id] || {};
   }
 }
-
-module.exports = Props

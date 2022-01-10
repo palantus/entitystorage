@@ -1,7 +1,7 @@
-let BSON = require("bson");
-let fs = require("fs")
+import BSON from "bson";
+import fs from "fs"
 
-class ReadHandler{
+export default class ReadHandler{
     async read(filename, onRecord){
         let fileExists = await new Promise(resolve => fs.stat(filename, (err, stats) => resolve(err ? false : true)));
         if(!fileExists) return;
@@ -51,5 +51,3 @@ class ReadHandler{
         */
     }
 }
-
-module.exports = ReadHandler

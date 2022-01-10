@@ -1,8 +1,6 @@
-"use strict"
+import Entity from "../main.js"
 
-let Entity = require("../main.js")
-
-class PropIndex{
+export default class PropIndex{
     constructor(){
         this.word2Ids = {}
     }
@@ -28,5 +26,3 @@ class PropIndex{
         console.log("Finished building prop index")
     }
 }
-
-module.exports = PropIndex

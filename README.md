@@ -15,7 +15,7 @@ Entities only exists by their properties. If you remove the last tag and it does
 Note: Better documentation coming :)
 
 ```javascript
-let Entity = require("entitystorage")
+import Entity from "entitystorage"
 
 await Entity.init("./data");
 
@@ -299,3 +299,19 @@ Examples:
  - `created:>2021-10`: Created in october 2021 or after
  - `created:2021-10`: Created in october 2021
  - `updated:<2021`: Updated in 2021 or before
+
+## Number Sequences
+
+Import `nextNum` for a persistant number sequence handler. It takes one (optional) argument, which is a context. The numbers are tied to the context. It can be used to generate sequential, user-facing id's for your entities.
+
+Example:
+
+```javascript
+import {default as Entity, nextNum} from "entitystorage"
+...
+console.log(nextNum("test1")) // Prints 1
+console.log(nextNum("test2")) // Prints 1
+console.log(nextNum("test1")) // Prints 2
+console.log(nextNum("test1")) // Prints 3
+console.log(nextNum("test2")) // Prints 2
+```

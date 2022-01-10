@@ -1,8 +1,8 @@
-let WriteHandler = require("../tools/writehandler.js");
-let ReadHandler = require("../tools/readhandler.js");
-const optimize = require("../tools/optimizer.js")
+import WriteHandler from "../tools/writehandler.js"
+import ReadHandler from "../tools/readhandler.js"
+import optimize from "../tools/optimizer.js"
 
-class History{
+export default class History{
   
   constructor(dbPath){
     this.id2History = {}
@@ -97,5 +97,3 @@ class History{
     return (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
   }
 }
-
-module.exports = History

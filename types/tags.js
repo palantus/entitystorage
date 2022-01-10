@@ -1,8 +1,8 @@
-let WriteHandler = require("../tools/writehandler.js");
-let ReadHandler = require("../tools/readhandler.js");
-const optimize = require("../tools/optimizer.js")
+import WriteHandler from "../tools/writehandler.js";
+import ReadHandler from "../tools/readhandler.js";
+import optimize from "../tools/optimizer.js"
 
-class Tags{
+export default class Tags{
   
   constructor(dbPath, history){
     this.tag2ids = {}
@@ -132,5 +132,3 @@ class Tags{
     return this.id2tags[id] || [];
   }
 }
-
-module.exports = Tags

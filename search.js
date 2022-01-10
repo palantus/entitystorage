@@ -1,8 +1,6 @@
-"use strict"
+import SearchQueryParser from "searchqueryparser"
 
-let SearchQueryParser = require("searchqueryparser")
-
-class Search{
+export default class Search{
 
     async init(){
         this.parser = new SearchQueryParser()
@@ -230,5 +228,3 @@ class Search{
         return res;
       }
 }
-
-module.exports = Search;

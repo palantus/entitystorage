@@ -1,8 +1,8 @@
-let WriteHandler = require("../tools/writehandler.js");
-let ReadHandler = require("../tools/readhandler.js");
-const optimize = require("../tools/optimizer.js");
+import WriteHandler from "../tools/writehandler.js";
+import ReadHandler from "../tools/readhandler.js";
+import optimize from "../tools/optimizer.js";
 
-class Relations{
+export default class Relations{
   
   constructor(dbPath, history){
     this.id2Ids = {}
@@ -241,5 +241,3 @@ class Relations{
     return this.id2IdsReverse[id] || {};
   }
 }
-
-module.exports = Relations

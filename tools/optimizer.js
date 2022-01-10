@@ -1,9 +1,8 @@
-const fs = require("fs");
-const path = require("path")
-const WriteHandler = require("../tools/writehandler.js");
-const ReadHandler = require("../tools/readhandler.js");
+import fs from "fs";
+import path from "path"
+import WriteHandler from "../tools/writehandler.js";
 
-module.exports = async function(sourceDB, idSet, idToData){
+export default async function(sourceDB, idSet, idToData){
   let folder = path.dirname(sourceDB).split(path.sep).pop()
   let files = fs.readdirSync(folder)
   await new Promise(r => fs.rename(sourceDB, `${sourceDB}_${files.length}`, (err) => {/*console.log(err); */r()}));
