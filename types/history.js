@@ -30,7 +30,10 @@ export default class History{
         if(this.id2History[data.id] === undefined){
           this.id2History[data.id] = []
         }
-        this.id2History[data.id].push({type: data.type, data: data.data, ts: data.ts})
+        if(!data.ts && data.data?.ts)
+          this.id2History[data.id].push({type: data.data.type, data: data.data.data, ts: data.data.ts})
+        else
+          this.id2History[data.id].push({type: data.type, data: data.data, ts: data.ts})
         this.idSet.add(data.id)
         numInserts++;
       } else {
@@ -42,7 +45,7 @@ export default class History{
     
     if(numDeletes / numInserts > 0.2 && numDeletes > 1000){
       console.log(`History has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
-      await optimize(this.dbPath, this.idSet, ((id) => (this.id2History[id]?.map(data => ({o: 1, id, data})) || [])).bind(this))
+      await optimize(this.dbPath, this.idSet, ((id) => (this.id2History[id]?.map(data => ({o: 1, id, ...data})) || [])).bind(this))
     }
   }
   
@@ -69,7 +72,7 @@ export default class History{
     if(this.id2History[id] === undefined){
       this.id2History[id] = []
     }
-    this.id2History[id].push({type: type, data, ts})
+    this.id2History[id].push({type, data, ts})
     this.idSet.add(id)
     this.write({o: 1, id, type, data, ts})
   }

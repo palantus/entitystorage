@@ -204,9 +204,9 @@ export default class Entity{
       return this;
     }
 
-    addHistoryEntry(data, timestamp){
+    addHistoryEntry(data, timestamp = null){
       if(timestamp && timestamp.length == 19) timestamp += ".000"
-      if(timestamp.length != 23) throw "Invalid custom timestamp for history entry"
+      if(typeof timestamp === "string" && timestamp.length != 23) throw "Invalid custom timestamp for history entry"
       global.EntityStorage.history.addEntry(this._id, "custom", data, false, timestamp)
     }
     
