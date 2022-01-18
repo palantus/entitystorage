@@ -30,7 +30,7 @@ export default class History{
         if(this.id2History[data.id] === undefined){
           this.id2History[data.id] = []
         }
-        if(!data.ts && data.data?.ts)
+        if(!data.ts && data.data?.ts) // This is only because optimization stored the data in a wrong way in <1.1.1, essentially removing all history. This restores it.
           this.id2History[data.id].push({type: data.data.type, data: data.data.data, ts: data.data.ts})
         else
           this.id2History[data.id].push({type: data.type, data: data.data, ts: data.ts})
