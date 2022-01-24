@@ -239,6 +239,9 @@ Entity static methods:
  - `from(entity)`: Cast a generic Entity to any custom type. Eg.: `MyType.from(entity)`.
  - `init(dataPath)`: Initialize Entity and load data. Remember to use await, as it is async.
 
+Extra imports:
+ - `nextNum(context)`: Get next number in a number sequence
+ - `sanitize(inputText)`: Sanitize text for using in a query (eg. from user input)
 
  ## Blobs
 
