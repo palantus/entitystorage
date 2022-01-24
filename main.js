@@ -246,25 +246,7 @@ export default class Entity {
   static async init(dataPath) {
     let es = new EntityStorage()
     await es.init(dataPath)
-
-    return {
-      uiPath: path.join(__dirname, "www"),
-      uiAPI: (req, res, next) => {
-        let query = req.params.query;
-
-        let result = Entity.search(query)
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(result.map(e => {
-          return {
-            id: e._id,
-            props: e.props,
-            tags: e.tags,
-            rels: e.rels,
-            relsrev: req.query?.includeReverse == "true" ? e.relsrev : undefined
-          }
-        })));
-      }
-    }
+    return {uiPath, uiAPI}
   }
 }
 
@@ -340,3 +322,20 @@ Entity.prototype.toString = function () {
 export let nextNum = (...args) => global.EntityStorage.numberSeq.num.apply(global.EntityStorage.numberSeq, args)
 export let sanitize = (input) => input.replace(/[^a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: ]/g, '')
 export let isFilterValid = (input) => /^[a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: \"\(\)\|!\s]*$/g.test(input)
+export let uiAPI = (req, res, next) => {
+  let query = req.params.query;
+
+  let result = Entity.search(query)
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(result.map(e => {
+    return {
+      id: e._id,
+      props: e.props,
+      tags: e.tags,
+      rels: e.rels,
+      relsrev: req.query?.includeReverse == "true" ? e.relsrev : undefined
+    }
+  })));
+}
+
+export let uiPath = path.join(__dirname, "www")
