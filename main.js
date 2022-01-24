@@ -339,3 +339,4 @@ Entity.prototype.toString = function () {
 
 export let nextNum = (...args) => global.EntityStorage.numberSeq.num.apply(global.EntityStorage.numberSeq, args)
 export let sanitize = (input) => input.replace(/[^a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: ]/g, '')
+export let isFilterValid = (input) => /^[a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: \"\(\)\|!\s]*$/g.test(input)
