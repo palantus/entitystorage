@@ -320,7 +320,10 @@ Entity.prototype.toString = function () {
 }
 
 export let nextNum = (...args) => global.EntityStorage.numberSeq.num.apply(global.EntityStorage.numberSeq, args)
-export let sanitize = (input) => input?.replace(/[^a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: ]/g, '') || ""
+export let sanitize = (input) => typeof input === "string" ? input.replace(/[^a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: ]/g, '')
+                               : typeof input === "number" ? ""+input
+                               : typeof input === "boolean" ? (input?"true":"false")
+                               : ""
 export let isFilterValid = (input) => /^[a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: \"\(\)\|!\s]*$/g.test(input)
 export let uiAPI = (req, res, next) => {
   let query = req.params.query;
