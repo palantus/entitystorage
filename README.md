@@ -267,6 +267,8 @@ stream.on('data', data => console.log(data))
 stream.on('end', () => console.log("Done"))
 ```
 
+Blobs can be opened by calling `openBlob()` on the entity. This returns a Writable stream.
+
 ## User Interface
 
 There is a very minimalist user interface embedded. It can be used in an existing express (or similar) environment like the following. In this case you can then use the user interface on ''.../db''.

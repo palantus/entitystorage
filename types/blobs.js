@@ -114,6 +114,17 @@ export default class Blob {
     return stream;
   }
 
+  async openWrite(id, mode){
+    let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
+    let fd = await fs.open(filename, mode||'w+')
+
+    this.idSet.add(id)
+    this.write({ o: 1, id })
+    this.history?.addEntry(id, "blob", { operation: "set" })
+
+    return fs2.createWriteStream(null, { fd });
+  }
+
   getMaxId() {
     return Array.from(this.idSet).reduce((max, e) => Math.max(max, e), 0);
   }

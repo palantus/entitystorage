@@ -146,6 +146,12 @@ export default class Entity {
     return this;
   }
 
+  openBlob(type = "write", mode = null) {
+    if(type == 'write')
+      return global.EntityStorage.blobs.openWrite(this._id, mode || 'w+')
+    throw "Unsupported mode for blob open"
+  }
+
   removeTag(tag) {
     global.EntityStorage.tags.removeTag(this._id, tag)
     return this;
