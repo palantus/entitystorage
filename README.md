@@ -269,6 +269,13 @@ stream.on('end', () => console.log("Done"))
 
 Blobs can be opened by calling `openBlob()` on the entity. This returns a Writable stream.
 
+If you need stats on the file, it can be retrived like this:
+```javascript
+let stats = await e.blob.stats()
+console.log(stats) // Returns the same object as node's own fs.stat
+```
+
+
 ## User Interface
 
 There is a very minimalist user interface embedded. It can be used in an existing express (or similar) environment like the following. In this case you can then use the user interface on ''.../db''.

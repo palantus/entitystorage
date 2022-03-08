@@ -105,6 +105,7 @@ export default class Blob {
     let stream = null;
     try{
       stream = fs2.createReadStream(filename);
+      stream.stats = () => new Promise(resolve => fs2.stat(filename, (e, stat) => resolve(e ? null : stat)))
       stream.on('error', function(err) {
         console.log(err)
       });
