@@ -131,6 +131,9 @@ export default class Search{
                   let [p, v] = token.split(">")
                   return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => (global.EntityStorage.props.getProps(id)[p] || "") >= v)
 
+                } else if(token){
+                  return (fixedStartSet?fixedStartSet:this.getAllIds()).filter((id) => global.EntityStorage.props.getProps(id)[token])
+
                 } else {
                   return []
                 }
