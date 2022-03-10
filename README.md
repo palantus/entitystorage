@@ -127,6 +127,8 @@ If you just want to return all entities, search for "*".
 
 If you want to search for a property starting or ending with a specific string, use the caret (^) symbol. (eg. "prop:type=^T" for starting with T and "prop:type=T^" for ending with T).
 
+If you want to search for entities missing a property, use "!prop:test".
+
 ## Pagination
 
 Search results are always sorted by their internal id (insert order) and the order is therefore guaranteed not to change on later searches. The "search" function has an optional second argument called args, which accepts the following properties:
@@ -142,7 +144,7 @@ It is recommended to do pagination using the above properties instead of eg. "sl
 
 ## Stepping through relations
 
-Relations can be steeped through using .related:
+Relations can be stepped through using .related:
 
 ```javascript
 let a = new Assignment("01234", "New assignment", "R55");
@@ -224,8 +226,10 @@ Entity instance methods:
  - `removeRel(e2, rel)`: Remove relation to e2 (Entity) of type rel (string)
  - `removeTag(tag)`: Remove tag "tag".
  - `removeProp(name)`: Remove property "name".
+ - `removeBlob()`: Remove blob.
+ - `openBlob()`: get at writable stream to the blob
  - `delete()`: delete all information about the entity
- - `setBlob`: set blob. Can be either a stream, a buffer or a string.
+ - `setBlob(data)`: set blob. Can be either a stream, a buffer or a string.
  - `rels`: get all relations (object like `{"rel1": [e1, e2], "rel2": [e1]}`)
  - `relsrev`: get all relations in the other direction
  - `props`: get all properties as an object (also accessible using .propertyname directly on entity)
@@ -275,6 +279,7 @@ let stats = await e.blob.stats()
 console.log(stats) // Returns the same object as node's own fs.stat
 ```
 
+If you want to find entities with/without a blob, you can use "blob" and "!blob".
 
 ## User Interface
 

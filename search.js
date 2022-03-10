@@ -177,6 +177,16 @@ export default class Search{
                 }
 
               default:
+                if(!tag){
+                  switch(token){
+                    case "blob":
+                      res = [...global.EntityStorage.blobs.getAllIds()]
+                      return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
+
+                    case "*":
+                      return fixedStartSet || this.getAllIds()
+                  }
+                }
                 return []
             }
           },
