@@ -142,6 +142,7 @@ export default class Entity {
   }
 
   setBlob(stream) {
+    if(!stream) return this;
     global.EntityStorage.blobs.set(this._id, stream)
     return this;
   }
@@ -331,6 +332,15 @@ export let sanitize = (input) => typeof input === "string" ? input.replace(/[^a-
                                : typeof input === "boolean" ? (input?"true":"false")
                                : ""
 export let isFilterValid = (input) => /^[a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: \"\(\)\|!\s]*$/g.test(input)
+export let duplicate = entity => {
+  if(!entity || !entity._id) return null;
+  let newEntity = new Entity();
+  for(let tag of entity.tags) newEntity.tag(tag);
+  for(let [rel, e] of Object.entries(entity.rels)) newEntity.rel(rel, e);
+  for(let [name, val] of Object.entries(entity.props)) newEntity.prop(name, val);
+  newEntity.setBlob(entity.blob);
+  return newEntity;
+}
 export let uiAPI = (req, res, next) => {
   let query = req.params.query;
 
