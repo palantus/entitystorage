@@ -336,7 +336,9 @@ export let duplicate = entity => {
   if(!entity || !entity._id) return null;
   let newEntity = new Entity();
   for(let tag of entity.tags) newEntity.tag(tag);
-  for(let [rel, e] of Object.entries(entity.rels)) newEntity.rel(rel, e);
+  for(let [rel, entities] of Object.entries(entity.rels)) 
+    for(let e of entities)
+      newEntity.rel(rel, e);
   for(let [name, val] of Object.entries(entity.props)) newEntity.prop(name, val);
   newEntity.setBlob(entity.blob);
   return newEntity;
