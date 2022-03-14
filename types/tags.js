@@ -33,16 +33,18 @@ export default class Tags{
       let tagLower = tag.toLowerCase()
       
       if(data.o == 1){
-        if(this.tag2ids[tagLower] === undefined){
+        let tagRecord = this.tag2ids[tagLower]
+        if(tagRecord === undefined){
           this.tag2ids[tagLower] = [id]
-        } else if(this.tag2ids[tagLower].indexOf(id) < 0){
-          this.tag2ids[tagLower].push(id)
+        } else if(!tagRecord.includes(id)){
+          tagRecord.push(id)
         } else return;
         
-        if(this.id2tags[id] === undefined)
+        let idRecord = this.id2tags[id]
+        if(idRecord === undefined)
           this.id2tags[id] = [tag]
         else
-          this.id2tags[id].push(tag)
+          idRecord.push(tag)
         
         this.idSet.add(id)
         numInserts++;
@@ -79,24 +81,23 @@ export default class Tags{
   
   addTag(id, tag){
     id = parseInt(id)
+
     let tagLower = tag.toLowerCase()
-    
-    if(this.tag2ids[tagLower] !== undefined && this.tag2ids[tagLower].indexOf(id) >= 0)
-      return;
-    
-    if(this.tag2ids[tagLower] === undefined){
+    let tagRecord = this.tag2ids[tagLower]
+
+    if(tagRecord === undefined){
       this.tag2ids[tagLower] = [id]
-    } else if(this.tag2ids[tagLower].indexOf(id) < 0){
+    } else if(!tagRecord.includes(id)){
       this.tag2ids[tagLower].push(id)
     } else return;
     
-    if(this.id2tags[id] === undefined)
+    let idRecord = this.id2tags[id]
+    if(idRecord === undefined)
       this.id2tags[id] = [tag]
     else
-      this.id2tags[id].push(tag)
+      idRecord.push(tag)
     
     this.idSet.add(id)
-    
     this.history?.addEntry(id, "tag", {operation: "add", tag})
     this.write({o: 1, id, tag})
   }
