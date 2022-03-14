@@ -5,8 +5,8 @@ import optimize from "../tools/optimizer.js"
 export default class Tags{
   
   constructor(dbPath, history){
-    this.tag2ids = {}
-    this.id2tags = {}
+    this.tag2ids = new Map()
+    this.id2tags = new Map()
     this.idSet = new Set();
     this.dbPath = dbPath || "tags.data"
     this.history = history
@@ -25,50 +25,24 @@ export default class Tags{
   }
   
   async readDB(){
+    this.isReading = true;
     let rd = new ReadHandler();
     let numDeletes = 0, numInserts = 0;
     await rd.read(this.dbPath, (data) => {
-      let id = data.id
-      let tag = data.tag
-      let tagLower = tag.toLowerCase()
-      
       if(data.o == 1){
-        let tagRecord = this.tag2ids[tagLower]
-        if(tagRecord === undefined){
-          this.tag2ids[tagLower] = [id]
-        } else if(!tagRecord.includes(id)){
-          tagRecord.push(id)
-        } else return;
-        
-        let idRecord = this.id2tags[id]
-        if(idRecord === undefined)
-          this.id2tags[id] = [tag]
-        else
-          idRecord.push(tag)
-        
-        this.idSet.add(id)
+        this.addTag(data.id, data.tag)
         numInserts++;
-      } else if(this.tag2ids[tagLower] !== undefined) {
-        this.tag2ids[tagLower] = this.tag2ids[tagLower].filter(i => i != id)
-        this.id2tags[id] = this.id2tags[id].filter(t => t != tag);
-        
-        if(this.id2tags[id].length < 1){
-          this.idSet.delete(id);
-          delete this.id2tags[id];
-        }
-
-        if(this.tag2ids[tagLower].length < 1){
-          delete this.tag2ids[tagLower];
-        }
-        
+      } else {
+        this.removeTag(data.id, data.tag)
         numDeletes++;
       }
     })
     
     if(numDeletes / numInserts > 0.2 && numDeletes > 1000){
       console.log(`Tags has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
-      await optimize(this.dbPath, this.idSet, ((id) => (this.id2tags[id]?.map(tag => ({o: 1, id, tag})) || [])).bind(this))
+      await optimize(this.dbPath, this.idSet, ((id) => (this.id2tags.has(id) ? [...this.id2tags.get(id)].map(tag => ({o: 1, id, tag})) : [])).bind(this))
     }
+    this.isReading = false;
   }
   
   getMaxId(){
@@ -81,55 +55,58 @@ export default class Tags{
   
   addTag(id, tag){
     id = parseInt(id)
-
     let tagLower = tag.toLowerCase()
-    let tagRecord = this.tag2ids[tagLower]
 
-    if(tagRecord === undefined){
-      this.tag2ids[tagLower] = [id]
-    } else if(!tagRecord.includes(id)){
-      this.tag2ids[tagLower].push(id)
-    } else return;
-    
-    let idRecord = this.id2tags[id]
-    if(idRecord === undefined)
-      this.id2tags[id] = [tag]
-    else
-      idRecord.push(tag)
+    if(this.tag2ids.has(tagLower)){
+      this.tag2ids.get(tagLower).add(id)
+    } else {
+      this.tag2ids.set(tagLower, new Set([id]))
+    }
+
+    if(this.id2tags.has(id)){
+      this.id2tags.get(id).add(tag)
+    } else {
+      this.id2tags.set(id, new Set([tag]))
+    }
     
     this.idSet.add(id)
-    this.history?.addEntry(id, "tag", {operation: "add", tag})
-    this.write({o: 1, id, tag})
+
+    if(!this.isReading){
+      this.history?.addEntry(id, "tag", {operation: "add", tag})
+      this.write({o: 1, id, tag})
+    }
   }
   
   removeTag(id, tag){
     id = parseInt(id)
     let tagLower = tag.toLowerCase()
     
-    if(this.tag2ids[tagLower] === undefined || this.tag2ids[tagLower].indexOf(id) < 0)
-      return;
-    
-    this.tag2ids[tagLower] = this.tag2ids[tagLower].filter(i => i != id)
-    this.id2tags[id] = this.id2tags[id].filter(t => t != tag);
-    
-    if(this.id2tags[id].length < 1){
-      this.idSet.delete(id)
-      delete this.id2tags[id];
+    let idSet = this.tag2ids.get(tagLower)
+    if(idSet) {
+      idSet.delete(id)
+      if(idSet.size < 1) this.tag2ids.delete(tagLower)
     }
 
-    if(this.tag2ids[tagLower].length < 1){
-      delete this.tag2ids[tagLower];
+    let tagSet = this.id2tags.get(id)
+    if(tagSet) {
+      tagSet.delete(tag)
+      if(tagSet.size < 1) {
+        this.id2tags.delete(id)
+        this.idSet.delete(id)
+      }
     }
-    
-    this.history?.addEntry(id, "tag", {operation: "remove", tag})
-    this.write({o: 0, id, tag})
+
+    if(!this.isReading){
+      this.history?.addEntry(id, "tag", {operation: "remove", tag})
+      this.write({o: 0, id, tag})
+    }
   }
   
   getByTag(tag){
-    return this.tag2ids[tag.toLowerCase()] || [];
+    return [...(this.tag2ids?.get(tag.toLowerCase()) || [])];
   }
   
   getTagsById(id){
-    return this.id2tags[id] || [];
+    return [...(this.id2tags.get(id) || [])];
   }
 }

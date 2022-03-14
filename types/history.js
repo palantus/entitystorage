@@ -90,6 +90,7 @@ export default class History{
   }
 
   delete(id){
+    if(!this.idSet.has(id)) return;
     delete this.id2History[id];
     this.idSet.delete(id)
     this.write({o: 0, id})

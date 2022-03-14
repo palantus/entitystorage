@@ -83,6 +83,7 @@ export default class Blob {
   }
 
   delete(id) {
+    if (!this.idSet.has(id)) return;
     let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
     fs.access(filename).then((err) => {
       if(!err) fs.unlink(filename)
