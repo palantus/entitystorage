@@ -200,7 +200,7 @@ export default class Search {
     let res;
     let hrstart
 
-    if (global.benchmarkSearch === true) {
+    if (process.env.BENCHMARK === "true") {
       hrstart = process.hrtime()
     }
 
@@ -216,10 +216,10 @@ export default class Search {
 
     res = res.sort((a, b) => a < b ? -1 : 1)
 
-    if (global.benchmarkSearch === true) {
+    if (process.env.BENCHMARK === "true") {
       let hrstart = process.hrtime()
       let hrend = process.hrtime(hrstart)
-      console.info('Searched %d entities in %ds %dms. Found %d results.', doSearch.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length)
+      console.info('Searched %d entities in %ds %dms. Found %d results. Query: %s', doSearch.getAllIds().length, hrend[0], hrend[1] / 1000000, res.length, query)
     }
 
     if (first != null && !isNaN(first))
