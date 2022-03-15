@@ -29,11 +29,22 @@ export class Query{
 
   relatedTo(entityOrId, relName){
     if(this._results !== null) return this.and(new Query().relatedTo(entityOrId, relName))
-    let id = !entityOrId ? null : typeof entityOrId === "object" ? (entityOrId instanceof Query ? entityOrId.first?._id : entityOrId._id) : entityOrId
-    if(!id || typeof id !== "number"){
-      this.results = new Set()
-    } else {
-      this._results = global.EntityStorage.rels.getRelatedReverse(id, relName)
+
+    let ids;
+    if(Array.isArray(entityOrId))
+      ids = entityOrId
+    else if(entityOrId instanceof Query)
+      ids = entityOrId.ids
+    else 
+      ids = [!entityOrId ? null : typeof entityOrId === "object" ? entityOrId._id : entityOrId]
+
+    for(let id of ids){
+      if(!id || typeof id !== "number") continue;
+      let res = global.EntityStorage.rels.getRelatedReverse(id, relName)
+      if(this._results !== null)
+        this._results = new Set([...res, ...this._results])
+      else
+        this._results = res;
     }
     return this;
   }
