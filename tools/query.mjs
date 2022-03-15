@@ -27,6 +27,7 @@ export class Query{
   }
 
   id(id){
+    id = parseInt(id)
     if(this._results !== null) return this.and(new Query().id(id))
     if(global.EntityStorage.props.idSet.has(id)
       || global.EntityStorage.tags.idSet.has(id)
