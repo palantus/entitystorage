@@ -43,7 +43,7 @@ export class Query{
     if(this._results == null || this._results.size < 1){
       this._results = new Set();
     } else if(q2 && q2._results != null && q2._results.size > 0){
-      this._results = [...this._results].filter(id => !q2._results.has(id))
+      this._results = new Set([...this._results].filter(id => !q2._results.has(id)))
     } 
     return this;
   }
@@ -59,9 +59,9 @@ export class Query{
     } else if(q2._results === null){
       this._results = this._results
     } else if(this._results.size > q2._results.size){
-      this._results = [...q2._results].filter(id => this._results.has(id))
+      this._results = new Set([...q2._results].filter(id => this._results.has(id)))
     } else {
-      this._results = [...this._results].filter(id => q2._results.has(id))
+      this._results = new Set([...this._results].filter(id => q2._results.has(id)))
     }
 
     return this;
@@ -69,9 +69,9 @@ export class Query{
 
   or(q2){
     if(this._results === null) {
-      this._results = q2._results || [];
+      this._results = q2._results || new Set();
     } else if(q2._results === null){
-      this._results = this._results
+      this._results = this._results || new Set()
     } else {
       this._results = new Set([...this._results, ...q2._results])
     }
