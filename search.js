@@ -38,7 +38,7 @@ export default class Search{
                       if(isNotReverse)
                         curSet = curSet.map(id => global.EntityStorage.rels.getRelated(id, rel) || null).filter(id => id !== null).flat()
                       else
-                        curSet = curSet.map(id => global.EntityStorage.rels.getRelatedReverse(id, rel) || null).filter(id => id !== null).flat()
+                        curSet = curSet.map(id => [...global.EntityStorage.rels.getRelatedReverse(id, rel)] || null).filter(id => id !== null).flat()
                     })
                     
                     return curSet;
@@ -55,7 +55,7 @@ export default class Search{
                           let newIds = []
                           for(let id of curIds){
                             if(isNotReverse)
-                              newIds.push(global.EntityStorage.rels.getRelatedReverse(id, rel))
+                              newIds.push([...global.EntityStorage.rels.getRelatedReverse(id, rel)])
                             else
                               newIds.push(global.EntityStorage.rels.getRelated(id, rel))
                           }
@@ -141,9 +141,9 @@ export default class Search{
 
               case "rel":
                 if(token.indexOf("=") >= 0)
-                  res = global.EntityStorage.rels.getRelatedReverse(...token.split("="))
+                  res = [...global.EntityStorage.rels.getRelatedReverse(...token.split("="))]
                 else
-                  res = global.EntityStorage.rels.getRelatedReverse(parseInt(token))
+                  res = [...global.EntityStorage.rels.getRelatedReverse(parseInt(token))]
                 return fixedStartSet ? res.filter(id => fixedStartSet.includes(id)) : res;
 
               case "revrel":

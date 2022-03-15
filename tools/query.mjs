@@ -10,6 +10,7 @@ export class Query{
 
   static tag(...args){return new Query().tag(...args)}
   static prop(...args){return new Query().prop(...args)}
+  static relatedTo(...args){return new Query().relatedTo(...args)}
   static id(...args){return new Query().id(...args)}
   static type(...args){return new Query().type(...args)}
   static not(...args){return new Query().not(...args)}
@@ -23,6 +24,17 @@ export class Query{
   prop(prop, value){
     if(this._results !== null) return this.and(new Query().prop(prop, value))
     this._results = global.EntityStorage.props.getIdsByProp(prop, value)
+    return this;
+  }
+
+  relatedTo(entityOrId, relName){
+    if(this._results !== null) return this.and(new Query().relatedTo(entityOrId, relName))
+    let id = !entityOrId ? null : typeof entityOrId === "object" ? (entityOrId instanceof Query ? entityOrId.first?._id : entityOrId._id) : entityOrId
+    if(!id || typeof id !== "number"){
+      this.results = new Set()
+    } else {
+      this._results = global.EntityStorage.rels.getRelatedReverse(id, relName)
+    }
     return this;
   }
 

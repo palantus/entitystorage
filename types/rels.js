@@ -184,9 +184,9 @@ export default class Relations{
   getRelatedReverse(id, rel){
     id = parseInt(id)
     if(rel){
-      return [...(this.id2IdsReverse.get(id)?.get(rel)||[])]
+      return this.id2IdsReverse.get(id)?.get(rel) || new Set()
     } else {
-      return [...(this.id2IdsReverseNoRel.get(id)||[])];
+      return this.id2IdsReverseNoRel.get(id) || new Set();
     }
   }
   
