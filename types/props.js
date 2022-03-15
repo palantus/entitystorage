@@ -5,8 +5,8 @@ import optimize from "../tools/optimizer.js"
 export default class Props{
   
   constructor(dbPath, history){
-    this.prop2Id = {}
-    this.id2Props = {}
+    this.prop2Id = new Map()
+    this.id2Props = new Map()
     this.idSet = new Set();
     this.dbPath = dbPath || "props.data"
     this.history = history
@@ -25,122 +25,133 @@ export default class Props{
   }
   
   async readDB(){
+    this.isReading = true;
     let numDeletes = 0, numInserts = 0;
     let rd = new ReadHandler();
     await rd.read(this.dbPath, (data) => {
-      let pv;
-      let oldPropCasing = this.id2Props[data.id] === undefined ? data.prop
-                        : this.id2Props[data.id][data.prop] !== undefined ? data.prop
-                        : Object.keys(this.id2Props[data.id]).find(k => k.toLowerCase() == data.prop.toLowerCase()) || data.prop
-                        
       if(data.o == 1){
-        pv = (data.prop + '__' + (typeof data.value === "string" ? data.value.substr(0, 100) : ""+data.value)).toLowerCase();
-        if(this.prop2Id[pv] === undefined)
-          this.prop2Id[pv] = [data.id]
-        else if(this.prop2Id[pv].indexOf(data.id) < 0)
-          this.prop2Id[pv].push(data.id)
-        
-        if(this.id2Props[data.id] === undefined){
-          this.id2Props[data.id] = {}
-        }
-        if(oldPropCasing !== data.prop){
-          delete this.id2Props[data.id][oldPropCasing]
-        }
-        this.id2Props[data.id][data.prop] = data.value;
-        this.idSet.add(data.id)
-        
+        this.setProp(data.id, data.prop, data.value)
         numInserts++;
       } else {
-        
-        let value = this.id2Props[data.id][oldPropCasing]
-        pv = (data.prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-        this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(data.id), 1);
-        delete this.id2Props[data.id][oldPropCasing];
-        if(Object.entries(this.id2Props[data.id]).length === 0)
-          this.idSet.delete(data.id)
+        this.removeProp(data.id, data.prop)
         numDeletes++;
       }
     })
     
     if(numDeletes / numInserts > 0.2 && numDeletes > 1000){
       console.log(`Props has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
-      await optimize(this.dbPath, this.idSet, ((id) => (Object.entries(this.id2Props[id]||{})?.map(([prop, value]) => ({o: 1, id, prop, value})) || [])).bind(this))
+      await optimize(this.dbPath, this.idSet, ((id) => ([...this.id2Props.get(id)?.entries()].map(([prop, value]) => ({o: 1, id, prop, value})) || [])).bind(this))
     }
+    this.isReading = false;
   }
   
   getMaxId(){
-    return Object.values(this.prop2Id).reduce((max, e) => Math.max(max, Math.max(...e)), 0);
+    return [...this.idSet].reduce((max, cur) => cur > max ? cur : max, 0);
   }
   
   getAllIds(){
-    return this.idSet.values()
+    return this.idSet
   }
   
   setProp(id, prop, value){
     value = value !== undefined ? value : ""
     id = parseInt(id)
 
-    if(this.id2Props[id] === undefined){
-      this.id2Props[id] = {}
+    let props = this.id2Props.get(id)
+
+    if(!props){
+      props = new Map()
+      this.id2Props.set(id, props)
     }
 
-    let oldCasing = this.id2Props[id][prop] !== undefined ? prop
-                  : Object.keys(this.id2Props[id]).find(k => k.toLowerCase() == prop.toLowerCase()) || prop
+    let oldCasing;
+    if(!this.id2Props.has(id))
+      oldCasing = prop
+    else {
+      if(props.has(prop))
+        oldCasing = prop
+      else
+        oldCasing = [...props.entries()].find(([k, v]) => k.toLowerCase() == prop.toLowerCase())?.[0] || prop
+    }
 
     // If the casing is the same and old value is the same as the new => ignore
-    if(oldCasing === prop && this.id2Props[id][prop] == value){
+    if(oldCasing === prop && props.get(prop) == value){
       return;
     }
     
-    if(this.id2Props[id][oldCasing] !== undefined){
+    let oldValue = props.get(oldCasing)
+
+    if(oldCasing !== prop){
       this.removeProp(id, oldCasing, true)
     }
     
-    this.id2Props[id][prop] = value;
+    props.set(prop, value)
     this.idSet.add(id)
     
-    let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-    if(this.prop2Id[pv] === undefined){
-      this.prop2Id[pv] = [id]
-    } else if(this.prop2Id[pv].indexOf(id) < 0){
-      this.prop2Id[pv].push(id)
+    if(oldValue !== undefined){
+      let pvOld = (prop + '__' + (typeof oldValue === "string" ? oldValue.substring(0, 100) : ""+oldValue)).toLowerCase();
+      if(this.prop2Id.has(pvOld)){
+        let ids = this.prop2Id.get(pvOld)
+        ids.delete(id)
+        if(ids.size < 1)
+          this.prop2Id.delete(pvOld)
+      }
     }
+
+    let pv = (prop + '__' + (typeof value === "string" ? value.substring(0, 100) : ""+value)).toLowerCase();
     
-    this.history?.addEntry(id, "prop", {operation: "set", prop, value})
-    this.write({o: 1, id, prop, value})
+    if(this.prop2Id.has(pv))
+      this.prop2Id.get(pv).add(id)
+    else
+      this.prop2Id.set(pv, new Set([id]))
+    
+    if(!this.isReading){
+      this.history?.addEntry(id, "prop", {operation: "set", prop, value})
+      this.write({o: 1, id, prop, value})
+    }
   }
   
   removeProp(id, prop, ignoreHistory){
     id = parseInt(id)
-    let value = this.id2Props[id][prop]
-    
-    if(value === undefined)
+
+    if(!this.id2Props.has(id))
       return;
-    
-    delete this.id2Props[id][prop];
-    if(Object.entries(this.id2Props[id]).length === 0)
+
+    let props = this.id2Props.get(id)
+    let value = props.get(prop)
+
+    props.delete(prop)
+    if(props.size < 1){
+      this.id2Props.delete(prop)
       this.idSet.delete(id)
+    }
     
-    let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-    if(this.prop2Id[pv] !== undefined && this.prop2Id[pv].indexOf(id) >= 0){
-      this.prop2Id[pv].splice(this.prop2Id[pv].indexOf(id), 1);
-      if(this.prop2Id[pv].length < 1){
-        delete this.prop2Id[pv];
+    let pv = (prop + '__' + (typeof value === "string" ? value.substring(0, 100) : ""+value)).toLowerCase();
+    if(this.prop2Id.has(pv)){
+      let ids = this.prop2Id.get(pv)
+      ids.delete(id)
+      if(ids.size < 1)
+        this.prop2Id.delete(pv)
+    }
+    
+    if(!this.isReading){
+      if(ignoreHistory !== true){
+        this.history?.addEntry(id, "prop", {operation: "remove", prop})
       }
+      this.write({o: 0, id, prop})
     }
-    
-    if(ignoreHistory !== true){
-      this.history?.addEntry(id, "prop", {operation: "remove", prop})
-    }
-    this.write({o: 0, id, prop})
   }
-  
+    
   getIdsByProp(prop, value){
-    let pv = (prop + '__' + (typeof value === "string" ? value.substr(0, 100) : ""+value)).toLowerCase();
-    return this.prop2Id[pv] || [];
+    if(value !== undefined){
+      let pv = (prop + '__' + (typeof value === "string" ? value.substring(0, 100) : ""+value)).toLowerCase();
+      return this.prop2Id.get(pv) || [];
+    }
+    let sw = prop + '__'
+    return new Set([...this.prop2Id.keys()].filter(k => k.startsWith(sw)).map(key => [...this.prop2Id.get(key)]).flat())
   }
   
   getProps(id){
-    return this.id2Props[id] || {};
+    return this.id2Props.has(id) ? Object.fromEntries(this.id2Props.get(id)) : {};
   }
 }

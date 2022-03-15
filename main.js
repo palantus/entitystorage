@@ -285,7 +285,7 @@ export class EntityStorage {
       new NumberSeq(path.resolve(dataPath, "numberseq.data"), history).init()
     ])
 
-    this.nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1
+    this._nextId = Math.max(this.tags.getMaxId(), this.rels.getMaxId(), this.props.getMaxId(), this.blobs.getMaxId()) + 1
     global.EntityStorage = this;
 
     this.indices = {}
@@ -359,4 +359,5 @@ export let uiAPI = (req, res, next) => {
   })));
 }
 
-export let uiPath = path.join(__dirname, "www")
+export let uiPath = path.join(__dirname, "www");
+export {Query as query} from "./tools/query.mjs"

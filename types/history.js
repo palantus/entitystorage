@@ -50,11 +50,11 @@ export default class History{
   }
   
   getMaxId(){
-    return Array.from(this.idSet).reduce((max, e) => Math.max(max, e), 0);
+    return [...this.idSet].reduce((max, cur) => cur > max ? cur : max, 0);
   }
   
   getAllIds(){
-    return this.idSet.values()
+    return this.idSet
   }
 
   isEnabled(id){

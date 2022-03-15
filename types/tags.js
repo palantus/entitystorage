@@ -46,11 +46,11 @@ export default class Tags{
   }
   
   getMaxId(){
-    return Object.values(this.tag2ids).reduce((max, e) => Math.max(max, Math.max(...e)), 0);
+    return [...this.idSet].reduce((max, cur) => cur > max ? cur : max, 0);
   }
   
   getAllIds(){
-    return this.idSet.values()
+    return this.idSet
   }
   
   addTag(id, tag){
@@ -103,7 +103,7 @@ export default class Tags{
   }
   
   getByTag(tag){
-    return [...(this.tag2ids?.get(tag.toLowerCase()) || [])];
+    return this.tag2ids?.get(tag.toLowerCase()) || new Set();
   }
   
   getTagsById(id){

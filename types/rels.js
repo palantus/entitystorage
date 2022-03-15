@@ -5,10 +5,10 @@ import optimize from "../tools/optimizer.js";
 export default class Relations{
   
   constructor(dbPath, history){
-    this.id2Ids = {}
-    this.id2IdsNoRel = {}
-    this.id2IdsReverse = {}
-    this.id2IdsReverseNoRel = {}
+    this.id2Ids = new Map()
+    this.id2IdsNoRel = new Map()
+    this.id2IdsReverse = new Map()
+    this.id2IdsReverseNoRel = new Map()
     this.idSet = new Set();
     this.dbPath = dbPath || "rels.data"
     this.history = history
@@ -27,99 +27,35 @@ export default class Relations{
   }
   
   async readDB(){
+    this.isReading = true;
     let numDeletes = 0, numInserts = 0;
     let rd = new ReadHandler();
-    await rd.read(this.dbPath, (data) => {
-      let id1 = data.id1;
-      let id2 = data.id2;
-      let rel = data.rel;
-      
+    await rd.read(this.dbPath, (data) => {      
       if(data.o == 1){
-        if(this.id2Ids[id1] === undefined){
-          this.id2Ids[id1] = {}
-          this.id2IdsNoRel[id1] = []
-        }
-        if(this.id2Ids[id1][rel] === undefined){
-          this.id2Ids[id1][rel] = []
-        }
-        this.id2Ids[id1][rel].push(id2)
-        if(this.id2IdsNoRel[id1].indexOf(id2) < 0){
-          this.id2IdsNoRel[id1].push(id2)
-        }
-        
-        // reverse index
-        if(this.id2IdsReverse[id2] === undefined){
-          this.id2IdsReverse[id2] = {}
-          this.id2IdsReverseNoRel[id2] = []
-        }
-        if(this.id2IdsReverse[id2][rel] === undefined){
-          this.id2IdsReverse[id2][rel] = []
-        }
-        this.id2IdsReverse[id2][rel].push(id1)
-        this.id2IdsReverseNoRel[id2].push(id1)
-        
-        this.idSet.add(id1)
-        this.idSet.add(id2)
-        
+        this.add(data.id1, data.id2, data.rel)
         numInserts++;
-      } else if(this.id2Ids[id1] !== undefined) {
-        this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
-        if(this.id2Ids[id1][rel].length == 0) {
-          delete this.id2Ids[id1][rel];
-        }
-        
-        if(Object.keys(this.id2Ids[id1]).length === 0) {
-          delete this.id2Ids[id1];
-          this.id2IdsNoRel[id1] = [];
-        } else if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0){
-          this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
-        }
-        
-        if(this.id2IdsNoRel[id1].length == 0) 
-          delete this.id2IdsNoRel[id1];
-        
-        this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
-        if(this.id2IdsReverse[id2][rel].length == 0) {
-          delete this.id2IdsReverse[id2][rel];
-          if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
-            delete this.id2IdsReverse[id2];
-        }
-        
-        if(!this.id2IdsReverse[id2]){
-          delete this.id2IdsReverseNoRel[id2];
-        } else if(Object.values(this.id2IdsReverse[id2]).reduce((total, cur) => total + (cur.includes(id1) ? 1 : 0), 0) == 0){
-          this.id2IdsReverseNoRel[id2] = this.id2IdsReverseNoRel[id2].filter(id => id != id1)
-          if(this.id2IdsReverseNoRel[id2].length == 0) 
-            delete this.id2IdsReverseNoRel[id2];
-        }
-        
-        if(this.id2IdsNoRel[id1] === undefined && this.id2IdsReverseNoRel[id1] === undefined)
-          this.idSet.delete(id1)
-        
-        if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
-          this.idSet.delete(id2)
-        
+      } else {
+        this.remove(data.id1, data.id2, data.rel)        
         numDeletes++;
       }
     })
 
     if(numDeletes / numInserts > 0.2 && numDeletes > 1000){
       console.log(`Relations has a delete-to-insert ratio of ${numDeletes / numInserts}. Optimizing the file.`)
-      await optimize(this.dbPath, this.idSet, id1 => Object.entries(this.id2Ids[id1]||{}).reduce((res, cur) => {
-        let [rel, ids] = cur;
-        res.push(...ids.map(id2 => ({o: 1, id1, id2, rel})))
+      await optimize(this.dbPath, this.idSet, id1 => [...(this.id2Ids.get(id1)?.entries()||[])].reduce((res, [rel, idSet]) => {
+        res.push(...[...idSet].map(id2 => ({o: 1, id1, id2, rel})))
         return res
       }, []))
     }
+    this.isReading = false;
   }
   
   getMaxId(){
-    return Math.max(Object.values(this.id2IdsNoRel).reduce((max, e) => Math.max(max, Math.max(...e)), 0),
-    Object.values(this.id2IdsReverseNoRel).reduce((max, e) => Math.max(max, Math.max(...e)), 0));
+    return [...this.idSet].reduce((max, cur) => cur > max ? cur : max, 0);
   }
   
   getAllIds(){
-    return this.idSet.values()
+    return this.idSet
   }
   
   add(id1, id2, rel){
@@ -131,113 +67,132 @@ export default class Relations{
 
     rel = rel.toLowerCase();
     
-    if(this.id2Ids[id1] !== undefined && this.id2Ids[id1][rel] !== undefined && this.id2Ids[id1][rel].indexOf(id2) >= 0)
-      return;
-    
-    if(this.id2Ids[id1] === undefined){
-      this.id2Ids[id1] = {}
-      this.id2IdsNoRel[id1] = []
-    }
-    if(this.id2Ids[id1][rel] === undefined){
-      this.id2Ids[id1][rel] = []
-    }
-    this.id2Ids[id1][rel].push(id2)
-    
-    if(this.id2IdsNoRel[id1].indexOf(id2) < 0){
-      this.id2IdsNoRel[id1].push(id2)
+    let rel2Ids = this.id2Ids.get(id1)
+    if(!rel2Ids){
+      rel2Ids = new Map()
+      rel2Ids.set(rel, new Set([id2]))
+      this.id2Ids.set(id1, rel2Ids)
+      this.id2IdsNoRel.set(id1, new Set([id2]))
+    } else {
+      if(rel2Ids.has(rel))
+        rel2Ids.get(rel).add(id2)
+      else
+        rel2Ids.set(rel, new Set([id2]))
+
+      this.id2IdsNoRel.get(id1).add(id2)
     }
     
     // reverse index
-    if(this.id2IdsReverse[id2] === undefined){
-      this.id2IdsReverse[id2] = {}
-      this.id2IdsReverseNoRel[id2] = []
+    let rel2IdsReverse = this.id2IdsReverse.get(id2)
+    if(!rel2IdsReverse){
+      rel2IdsReverse = new Map()
+      rel2IdsReverse.set(rel, new Set([id1]))
+      this.id2IdsReverse.set(id2, rel2IdsReverse)
+      this.id2IdsReverseNoRel.set(id2, new Set([id1]))
+    } else {
+      if(rel2IdsReverse.has(rel))
+        rel2IdsReverse.get(rel).add(id1)
+      else
+        rel2IdsReverse.set(rel, new Set([id1]))
+
+      this.id2IdsReverseNoRel.get(id2).add(id1)
     }
-    if(this.id2IdsReverse[id2][rel] === undefined){
-      this.id2IdsReverse[id2][rel] = []
-    }
-    this.id2IdsReverse[id2][rel].push(id1)
-    if(this.id2IdsReverseNoRel[id2].indexOf(id1) < 0){
-      this.id2IdsReverseNoRel[id2].push(id1)
-    }
-    
+
     this.idSet.add(id1)
     this.idSet.add(id2)
     
-    this.history?.addEntry(id1, "rel", {operation: "add", rel, id1, id2})
-    this.history?.addEntry(id2, "rel", {operation: "add-rev", rel, id1, id2})
-    this.write({o: 1, id1, id2, rel})
+    if(!this.isReading){
+      this.history?.addEntry(id1, "rel", {operation: "add", rel, id1, id2})
+      this.history?.addEntry(id2, "rel", {operation: "add-rev", rel, id1, id2})
+      this.write({o: 1, id1, id2, rel})
+    }
   }
   
   remove(id1, id2, rel){
     id1 = parseInt(id1)
     id2 = parseInt(id2)
-    if(!rel)
-      rel = "" //No rel
+    rel = (rel||"").toLowerCase();
+
+    let rel2Ids = this.id2Ids.get(id1)
+    if(!rel2Ids) return;
+
+    let ids = rel2Ids.get(rel)
+    if(!ids) return;
+
+    ids.delete(id2)
+    if(ids.size < 1)
+      rel2Ids.delete(rel)
     
-    if(this.id2Ids[id1] === undefined || this.id2Ids[id1][rel] === undefined || this.id2Ids[id1][rel].indexOf(id2) < 0)
-      return;
-    
-    this.id2Ids[id1][rel] = this.id2Ids[id1][rel].filter(id => id != id2)
-    if(this.id2Ids[id1][rel].length == 0){
-      delete this.id2Ids[id1][rel];
-    }
-    
-    if(Object.keys(this.id2Ids[id1]).length === 0) {
-      delete this.id2Ids[id1];
-      this.id2IdsNoRel[id1] = [];
-    } else if(Object.values(this.id2Ids[id1]).reduce((total, cur) => total + (cur.includes(id2) ? 1 : 0), 0) == 0){
-      this.id2IdsNoRel[id1] = this.id2IdsNoRel[id1].filter(id => id != id2)
-    }
-    if(this.id2IdsNoRel[id1].length == 0) 
-      delete this.id2IdsNoRel[id1];
-    
-    this.id2IdsReverse[id2][rel] = this.id2IdsReverse[id2][rel].filter(id => id != id1)
-    if(this.id2IdsReverse[id2][rel].length == 0) {
-      delete this.id2IdsReverse[id2][rel];
-      if(Object.keys(this.id2IdsReverse[id2]).length < 1) 
-        delete this.id2IdsReverse[id2];
-    }
-    
-    if(!this.id2IdsReverse[id2]){
-      delete this.id2IdsReverseNoRel[id2];
-    } else if(Object.values(this.id2IdsReverse[id2]).reduce((total, cur) => total + (cur.includes(id1) ? 1 : 0), 0) == 0){
-      this.id2IdsReverseNoRel[id2] = this.id2IdsReverseNoRel[id2].filter(id => id != id1)
-      if(this.id2IdsReverseNoRel[id2].length == 0) 
-        delete this.id2IdsReverseNoRel[id2];
-    }
-    
-    if(this.id2IdsNoRel[id1] === undefined && this.id2IdsReverseNoRel[id1] === undefined)
+    if(rel2Ids.size < 1){
+      this.id2Ids.delete(id1)
+      this.id2IdsNoRel.delete(id1)
       this.idSet.delete(id1)
+    }
     
-    if(this.id2IdsNoRel[id2] === undefined && this.id2IdsReverseNoRel[id2] === undefined)
-      this.idSet.delete(id2)
+    let numRels = [...rel2Ids.entries()].reduce((total, [rel, ids]) => total + (ids.has(id2) ? 1 : 0), 0)
+    if(numRels < 1){
+      let ids = this.id2IdsNoRel.get(id1)
+      if(ids){
+        ids?.delete(id2)
+        if(ids.size < 1)
+          this.id2IdsNoRel.delete(id1)
+      }
+    }
     
-    this.history?.addEntry(id1, "rel", {operation: "remove", rel, id1, id2})
-    this.history?.addEntry(id2, "rel", {operation: "remove-rev", rel, id1, id2})
-    this.write({o: 0, id1, id2, rel})
+    // Reverse
+
+    let rel2IdsReverse = this.id2IdsReverse.get(id2)
+    let idsReverse = rel2IdsReverse.get(rel)
+    if(idsReverse){
+      idsReverse.delete(id1)
+      if(idsReverse.size < 1)
+        rel2IdsReverse.delete(rel)
+      
+      if(rel2IdsReverse.size < 1){
+        this.id2IdsReverse.delete(id2)
+        this.id2IdsReverseNoRel.delete(id2)
+        this.idSet.delete(id2)
+      }
+      
+      let numRelsReverse = [...rel2Ids.entries()].reduce((total, [rel, ids]) => total + (ids.has(id1) ? 1 : 0), 0)
+      if(numRelsReverse < 1){
+        let ids = this.id2IdsReverseNoRel.get(id2)
+        if(ids){
+          ids?.delete(id1)
+          if(ids.size < 1)
+            this.id2IdsReverseNoRel.delete(id2)
+        }
+      }
+    }
+
+    if(!this.isReading){
+      this.history?.addEntry(id1, "rel", {operation: "remove", rel, id1, id2})
+      this.history?.addEntry(id2, "rel", {operation: "remove-rev", rel, id1, id2})
+      this.write({o: 0, id1, id2, rel})
+    }
   }
   
   getRelated(id, rel){
     if(rel){
-      return (this.id2Ids[id]||{})[rel] || [];
+      return [...(this.id2Ids.get(id)?.get(rel)||[])]
     } else {
-      return this.id2IdsNoRel[id] || [];
+      return [...(this.id2IdsNoRel.get(id)||[])];
     }
   }
   
   getRelatedReverse(id, rel){
     if(rel){
-      return (this.id2IdsReverse[id]||{})[rel] || [];
+      return [...(this.id2IdsReverse.get(id)?.get(rel)||[])]
     } else {
-      return this.id2IdsReverseNoRel[id] || [];
+      return [...(this.id2IdsReverseNoRel.get(id)||[])];
     }
   }
   
   getRelations(id){
-    return this.id2Ids[id] || {};
+    return Object.fromEntries([...(this.id2Ids.get(id)?.entries()||[])].map(([rel, ids]) => ([rel, [...ids]])));
   }
   
   getRelationsReverse(id){
-    return this.id2IdsReverse[id] || {};
+    return Object.fromEntries([...(this.id2IdsReverse.get(id)?.entries()||[])].map(([rel, ids]) => ([rel, [...ids]])));
   }
 }

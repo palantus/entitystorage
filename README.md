@@ -332,3 +332,42 @@ console.log(nextNum("test1")) // Prints 2
 console.log(nextNum("test1")) // Prints 3
 console.log(nextNum("test2")) // Prints 2
 ```
+
+## Alternative searching: query
+
+As an alternative to filter based query, it is possible to use the export `query` instead. Examples: 
+
+```javascript
+// Get all results with property test=hey2:
+query.tag("testsearch").prop("test", "hey2").all
+
+// Casting the first result to type/class My and calling class method log() on it:
+query.tag("testsearch").prop("test", "hey2").type(My).first.log()
+
+// Get all results with tag testsearch or testsearch3:
+query.tag("testsearch").or(query.tag("testsearch3")).all
+
+// Get all results with property test3 defined:
+query.prop("test3").all
+
+// Get all results with tag testsearch, but not property test=hey2:
+query.tag("testsearch").not(query.prop("test", "hey2")).all 
+
+// Get entity with id=4
+query.id(4).first
+```
+
+Important: Unlike find/search, the order of the entities are NOT guaranteed using `query`. This is for performance reasons, as `query` is much faster.
+
+API:
+ - `prop(prop, value)`: filter by prop and value. Value is optional. If Value is omitted, it will search for entities with that property defined.
+ - `tag(tag)`: filter by tag
+ - `id(id)`:  filter by id
+ - `and(query2)`: results must match the current query and `query2`
+ - `or(query2)`: results must match the current query or `query2`
+ - `not(query2)`: results must match the current query and NOT `query2`
+ - `first`: get first result. Note that the order is not guaranteed, so you might end up with a different result if you run it twice.
+ - `all`: get all results as an array. Note that the order is not guaranteed, so you might end up with a different result if you run it twice.
+ - `ids`: get all results as a Set of id integers (not instances of Entity). Is faster, if you only want to check for number of items.
+ - `exists`: a boolean indicating if there is any results
+ - `count`: number of results

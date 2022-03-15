@@ -98,8 +98,8 @@ export default class Search{
 
               case "tag":
                 if(fixedStartSet)
-                  return global.EntityStorage.tags.getByTag(token).filter(id => fixedStartSet.includes(id))
-                return global.EntityStorage.tags.getByTag(token);
+                  return [...global.EntityStorage.tags.getByTag(token)].filter(id => fixedStartSet.includes(id))
+                return [...global.EntityStorage.tags.getByTag(token)];
                 
               case "prop":
                 res = null;
@@ -114,7 +114,7 @@ export default class Search{
 
                 } else if(token.indexOf("=") > 0){
                   let [p, v] = token.split("=")
-                  res = global.EntityStorage.props.getIdsByProp(p, v);
+                  res = [...global.EntityStorage.props.getIdsByProp(p, v)];
 
                 } else if(token.indexOf("~") > 0){
                   let [p, v] = token.split("~")
@@ -192,7 +192,7 @@ export default class Search{
           },
           getAllIds(){
             if(!this.allIds)
-              this.allIds = global.EntityStorage.getAllIds();
+              this.allIds = [...global.EntityStorage.getAllIds()];
             return this.allIds;
           }
         }
@@ -207,7 +207,7 @@ export default class Search{
         if(!query){
           res = []
         } else if(query === "*"){
-          res = global.EntityStorage.getAllIds();
+          res = [...global.EntityStorage.getAllIds()];
         } else {
           //query = query.toLowerCase();
           let ast = this.parser.parse(query.trim())

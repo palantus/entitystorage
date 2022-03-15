@@ -8,7 +8,7 @@ export default class PropIndex{
     fill(){
         console.log("Beginning to build prop index")
         let allIds = global.EntityStorage.props.getAllIds()
-        for(let id of allIds){
+        for(let id of allIds.values()){
             let props = global.EntityStorage.props.getProps(id)
             
             for (let [key, value] of Object.entries(props)) {
