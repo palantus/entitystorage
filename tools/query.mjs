@@ -40,9 +40,9 @@ export class Query{
   }
 
   not(q2){
-    if(this._results == null || this._results.length < 1 || !q2 || q2._results == null || q2._results.length < 1){
-      this._results = []
-    } else {
+    if(this._results == null || this._results.size < 1){
+      this._results = new Set();
+    } else if(q2 && q2._results != null && q2._results.size > 0){
       this._results = [...this._results].filter(id => !q2._results.has(id))
     } 
     return this;
