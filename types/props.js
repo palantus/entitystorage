@@ -152,6 +152,7 @@ export default class Props{
   }
   
   getProps(id){
+    id = parseInt(id)
     return this.id2Props.has(id) ? Object.fromEntries(this.id2Props.get(id)) : {};
   }
 }

@@ -45,6 +45,7 @@ export default class Blob {
   }
 
   async set(id, data) {
+    id = parseInt(id)
     if (typeof data === "string") {
       data = Buffer.from(data)
     }
@@ -83,6 +84,7 @@ export default class Blob {
   }
 
   delete(id) {
+    id = parseInt(id)
     if (!this.idSet.has(id)) return;
     let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
     fs.access(filename).then((err) => {
@@ -95,6 +97,7 @@ export default class Blob {
   }
 
   get(id) {
+    id = parseInt(id)
     if (!this.idSet.has(id))
       return null;
 
@@ -117,6 +120,7 @@ export default class Blob {
   }
 
   async openWrite(id, mode){
+    id = parseInt(id)
     let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
     let fd = await fs.open(filename, mode||'w+')
 

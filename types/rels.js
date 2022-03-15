@@ -173,6 +173,7 @@ export default class Relations{
   }
   
   getRelated(id, rel){
+    id = parseInt(id)
     if(rel){
       return [...(this.id2Ids.get(id)?.get(rel)||[])]
     } else {
@@ -181,6 +182,7 @@ export default class Relations{
   }
   
   getRelatedReverse(id, rel){
+    id = parseInt(id)
     if(rel){
       return [...(this.id2IdsReverse.get(id)?.get(rel)||[])]
     } else {
@@ -189,10 +191,12 @@ export default class Relations{
   }
   
   getRelations(id){
+    id = parseInt(id)
     return Object.fromEntries([...(this.id2Ids.get(id)?.entries()||[])].map(([rel, ids]) => ([rel, [...ids]])));
   }
   
   getRelationsReverse(id){
+    id = parseInt(id)
     return Object.fromEntries([...(this.id2IdsReverse.get(id)?.entries()||[])].map(([rel, ids]) => ([rel, [...ids]])));
   }
 }

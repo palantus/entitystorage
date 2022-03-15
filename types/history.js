@@ -58,15 +58,18 @@ export default class History{
   }
 
   isEnabled(id){
+    id = parseInt(id)
     return this.idSet.has(id)
   }
 
   enable(id){
+    id = parseInt(id)
     if(this.idSet.has(id)) return;
     this.addEntry(id, "enable", null, true)
   }
   
   addEntry(id, type, data = null, force = false, timestamp = null){
+    id = parseInt(id)
     if(!force && !this.idSet.has(id)) return;
     let ts = timestamp || this.getTimestamp();
     if(this.id2History[id] === undefined){
@@ -78,18 +81,22 @@ export default class History{
   }
 
   getEntries(id){
+    id = parseInt(id)
     return this.id2History[id] ?? []
   }
 
   getFirstEntry(id){
+    id = parseInt(id)
     return this.id2History[id]?.reduce((first, cur) => cur.ts < first?.ts||"9999" ? cur : first, null) || null
   }
 
   getLastEntry(id){
+    id = parseInt(id)
     return this.id2History[id]?.reduce((last, cur) => cur.ts > last?.ts||"0000" ? cur : last, null) || null
   }
 
   delete(id){
+    id = parseInt(id)
     if(!this.idSet.has(id)) return;
     delete this.id2History[id];
     this.idSet.delete(id)

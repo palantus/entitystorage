@@ -107,6 +107,7 @@ export default class Tags{
   }
   
   getTagsById(id){
+    id = parseInt(id)
     return [...(this.id2tags.get(id) || [])];
   }
 }
