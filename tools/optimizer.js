@@ -3,7 +3,7 @@ import path from "path"
 import WriteHandler from "../tools/writehandler.js";
 
 export default async function(sourceDB, idSet, idToData){
-  let folder = path.dirname(sourceDB).split(path.sep).pop()
+  let folder = path.dirname(sourceDB)
   let files = fs.readdirSync(folder)
   await new Promise(r => fs.rename(sourceDB, `${sourceDB}_${files.length}`, (err) => {/*console.log(err); */r()}));
   let exists = await new Promise(r => fs.access(sourceDB, err => r(err ? false : true)))
