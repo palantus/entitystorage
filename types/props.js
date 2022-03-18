@@ -147,7 +147,7 @@ export default class Props{
       let pv = (prop + '__' + (typeof value === "string" ? value.substring(0, 100) : ""+value)).toLowerCase();
       return this.prop2Id.get(pv) || new Set();
     }
-    let sw = prop + '__'
+    let sw = (prop + '__').toLowerCase()
     return new Set([...this.prop2Id.keys()].filter(k => k.startsWith(sw)).map(key => [...this.prop2Id.get(key)]).flat())
   }
   
