@@ -46,6 +46,7 @@ export class Query{
       else
         this._results = res;
     }
+    if(!this._results) this._results = new Set()
     return this;
   }
 
