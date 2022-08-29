@@ -50,4 +50,11 @@ export default class NumberSeq {
     let key = (typeof context) === "string" && context ? context : ""
     return this.context2Num[key] || null
   }
+
+  set(context, num){
+    let key = (typeof context) === "string" && context ? context : ""
+    let newNum = isNaN(num) ? 0 : Math.max(this.context2Num[key]||0, parseInt(num))
+    this.context2Num[key] = newNum
+    this.write({ key, newNum })
+  }
 }

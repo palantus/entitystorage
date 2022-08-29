@@ -327,6 +327,8 @@ Entity.prototype.toString = function () {
 }
 
 export let nextNum = (...args) => global.EntityStorage.numberSeq.num.apply(global.EntityStorage.numberSeq, args)
+export let setNum = (...args) => global.EntityStorage.numberSeq.set.apply(global.EntityStorage.numberSeq, args)
+export let lastNum = (...args) => global.EntityStorage.numberSeq.last.apply(global.EntityStorage.numberSeq, args)
 export let sanitize = (input) => typeof input === "string" ? input.replace(/[^a-zA-ZæøåÆØÅ0-9\-?><=_@&%0/.,;~^*: ]/g, '')
                                : typeof input === "number" ? ""+input
                                : typeof input === "boolean" ? (input?"true":"false")

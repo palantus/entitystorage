@@ -245,6 +245,8 @@ Entity static methods:
 
 Extra imports:
  - `nextNum(context)`: Get next number in a number sequence
+ - `setNum(context, num)`: Set next number in a number sequence (cannot set lower id than what has been used before)
+ - `lastNum(context)`: Get last number in a number sequence
  - `sanitize(inputText)`: Sanitize text for using in a query (eg. from user input)
 
  ## Blobs
