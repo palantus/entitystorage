@@ -53,8 +53,10 @@ export default class NumberSeq {
 
   set(context, num){
     let key = (typeof context) === "string" && context ? context : ""
-    let newNum = isNaN(num) ? 0 : Math.max(this.context2Num[key]||0, parseInt(num))
+    let curNum = this.context2Num[key]||0
+    let newNum = isNaN(num) ? 0 : parseInt(num)
+    if(curNum >= newNum) return;
     this.context2Num[key] = newNum
-    this.write({ key, newNum })
+    this.write({ key, id: newNum })
   }
 }
