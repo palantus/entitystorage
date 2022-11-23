@@ -126,7 +126,6 @@ export default class Relations{
     if(rel2Ids.size < 1){
       this.id2Ids.delete(id1)
       this.id2IdsNoRel.delete(id1)
-      this.idSet.delete(id1)
     }
     
     let numRels = [...rel2Ids.entries()].reduce((total, [rel, ids]) => total + (ids.has(id2) ? 1 : 0), 0)
@@ -151,7 +150,6 @@ export default class Relations{
       if(rel2IdsReverse.size < 1){
         this.id2IdsReverse.delete(id2)
         this.id2IdsReverseNoRel.delete(id2)
-        this.idSet.delete(id2)
       }
       
       let numRelsReverse = [...rel2Ids.entries()].reduce((total, [rel, ids]) => total + (ids.has(id1) ? 1 : 0), 0)
@@ -164,6 +162,11 @@ export default class Relations{
         }
       }
     }
+
+    if(!this.id2Ids.has(id1) && !this.id2IdsReverse.has(id1))
+      this.idSet.delete(id1)
+    if(!this.id2Ids.has(id2) && !this.id2IdsReverse.has(id2))
+      this.idSet.delete(id2)
 
     if(!this.isReading){
       this.history?.addEntry(id1, "rel", {operation: "remove", rel, id1, id2})
