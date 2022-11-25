@@ -270,7 +270,7 @@ export class EntityStorage {
   }
 
   async init(dataPath) {
-    dataPath = dataPath ? dataPath : "./";
+    dataPath = this.dataPath = dataPath ? dataPath : "./";
 
     await fs.promises.mkdir(dataPath, { recursive: true });
     let history = new History(path.resolve(dataPath, "history.data"));
@@ -363,3 +363,4 @@ export let uiAPI = (req, res, next) => {
 
 export let uiPath = path.join(__dirname, "www");
 export {Query as query} from "./tools/query.mjs"
+export {runJob} from "./tools/jobs.mjs"
