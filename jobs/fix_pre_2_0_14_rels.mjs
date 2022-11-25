@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path"
 import ReadHandler from "../tools/readhandler.js";
+export let jobName = "fix_pre_2_0_14_rels";
+
 
 export async function run(){
-  console.log("Starting job 'fix_pre_2_0_14_rels'...")
+  console.log(`Starting job '${jobName}'...`)
 
   let files = fs.readdirSync(global.EntityStorage.dataPath)
                 .filter(name => name.startsWith("rels.data"))
@@ -58,11 +60,11 @@ export async function run(){
       let [id1, id2, rel] = val.split(splitChar)
       id1 = parseInt(id1)
       id2 = parseInt(id2)
-      global.EntityStorage.rels.write({o: 1, id1, id2, rel})
+      global.EntityStorage.rels.write({o: 1, id1, id2, rel, job: jobName})
     }
   } else {
     console.log("No relations are missing :)")
   }
 
-  console.log("Job 'fix_pre_2_0_14_rels' executed!")
+  console.log(`Job '${jobName}' executed!`)
 }
