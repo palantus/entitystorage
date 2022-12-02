@@ -141,9 +141,9 @@ export default class Entity {
     return this;
   }
 
-  setBlob(stream) {
+  async setBlob(stream) {
     if(!stream) return this;
-    global.EntityStorage.blobs.set(this._id, stream)
+    await global.EntityStorage.blobs.set(this._id, stream)
     return this;
   }
 

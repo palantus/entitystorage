@@ -60,12 +60,18 @@ export default class Blob {
       data.pipe(writable);
       await new Promise(resolve => data.on("end", resolve))
       */
+      // Old version:
+      /*
       data = await new Promise((resolve, reject) => {
         const _buf = [];
         data.on("data", (chunk) => _buf.push(chunk));
         data.on("end", () => resolve(Buffer.concat(_buf)));
         data.on("error", (err) => reject(err));
       });
+      */
+      let fd = await fs.open(filename, 'w')
+      const writable = fd.createWriteStream();
+      await new Promise(resolve => data.pipe(writable).on('finish', resolve))
     } 
 
     if (Buffer.isBuffer(data) || (typeof data.on === 'function' && typeof data.read === 'function')) {
