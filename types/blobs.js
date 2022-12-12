@@ -73,9 +73,8 @@ export default class Blob {
       let fd = await fs.open(filename, 'w')
       const writable = fd.createWriteStream();
       await new Promise(resolve => data.pipe(writable).on('finish', resolve))
-    } 
-
-    if (Buffer.isBuffer(data) || (typeof data.on === 'function' && typeof data.read === 'function')) {
+      fd.close()
+    } else if (Buffer.isBuffer(data) || (typeof data.on === 'function' && typeof data.read === 'function')) {
       let fd = await fs.open(filename, 'w')
       await fd.writeFile(data)
       fd.close()
