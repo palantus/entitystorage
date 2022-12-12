@@ -52,6 +52,7 @@ export default class Blob {
 
     this.cacheWhenWriting[id] = data;
 
+    let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
     if(data instanceof stream.Readable){
       // Node 16 version:
       /*
@@ -75,7 +76,6 @@ export default class Blob {
     } 
 
     if (Buffer.isBuffer(data) || (typeof data.on === 'function' && typeof data.read === 'function')) {
-      let filename = path.resolve(this.dbPath, `blobs/${id}.data`)
       let fd = await fs.open(filename, 'w')
       await fd.writeFile(data)
       fd.close()
