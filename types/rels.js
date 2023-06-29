@@ -79,7 +79,10 @@ export default class Relations{
       else
         rel2Ids.set(rel, new Set([id2]))
 
-      this.id2IdsNoRel.get(id1).add(id2)
+      if(!this.id2IdsNoRel.has(id1))
+        this.id2IdsNoRel.set(id1, new Set([id2]))
+      else
+        this.id2IdsNoRel.get(id1).add(id2)
     }
     
     // reverse index
@@ -95,7 +98,10 @@ export default class Relations{
       else
         rel2IdsReverse.set(rel, new Set([id1]))
 
-      this.id2IdsReverseNoRel.get(id2).add(id1)
+      if(!this.id2IdsReverseNoRel.has(id2))
+        this.id2IdsReverseNoRel.set(id2, new Set([id1]))
+      else
+        this.id2IdsReverseNoRel.get(id2).add(id1)
     }
 
     this.idSet.add(id1)
