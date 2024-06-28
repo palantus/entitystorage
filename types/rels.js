@@ -147,7 +147,7 @@ export default class Relations{
     // Reverse
 
     let rel2IdsReverse = this.id2IdsReverse.get(id2)
-    let idsReverse = rel2IdsReverse.get(rel)
+    let idsReverse = rel2IdsReverse?.get(rel)
     if(idsReverse){
       idsReverse.delete(id1)
       if(idsReverse.size < 1)
